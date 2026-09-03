@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="100%" height="100%">
+  <defs>
+    <linearGradient id="srvBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#srvBg)"/>
+  <!-- Crossed Tools -->
+  <g filter="drop-shadow(0 10px 15px rgba(0,0,0,0.6))">
+    <!-- Wrench -->
+    <path d="M 130 90 L 150 110 L 250 210 L 230 230 L 130 130 Z" fill="#6366f1"/>
+    <circle cx="120" cy="80" r="28" fill="#4f46e5"/>
+    <circle cx="120" cy="80" r="14" fill="#0f172a"/>
+    <!-- Screwdriver / Trim Tool -->
+    <path d="M 270 90 L 250 110 L 150 210 L 170 230 L 270 130 Z" fill="#f43f5e"/>
+    <rect x="250" y="70" width="40" height="30" rx="4" fill="#e11d48"/>
+  </g>
+  <circle cx="200" cy="155" r="35" fill="#1e293b" stroke="#38bdf8" stroke-width="3"/>
+  <!-- Checkmark -->
+  <path d="M 188 155 L 196 163 L 214 145" fill="none" stroke="#22c55e" stroke-width="4" stroke-linecap="round"/>
+  <!-- Badge -->
+  <rect x="15" y="15" width="170" height="26" rx="13" fill="#4f46e5" opacity="0.95"/>
+  <text x="100" y="32" fill="#ffffff" font-family="sans-serif" font-size="11" font-weight="bold" text-anchor="middle">EXPERT FITTING SERVICE</text>
+</svg>

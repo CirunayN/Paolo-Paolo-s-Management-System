@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="100%" height="100%">
+  <defs>
+    <linearGradient id="pkBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1e24"/>
+      <stop offset="100%" stop-color="#09090b"/>
+    </linearGradient>
+    <linearGradient id="pkMat" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3f3f46"/>
+      <stop offset="100%" stop-color="#18181b"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#pkBg)"/>
+  <!-- Rugged Tread Marks -->
+  <g opacity="0.15" stroke="#f97316" stroke-width="2">
+    <path d="M 20 20 L 40 40 M 60 20 L 80 40 M 100 20 L 120 40 M 140 20 L 160 40"/>
+    <path d="M 240 260 L 260 280 M 280 260 L 300 280 M 320 260 L 340 280 M 360 260 L 380 280"/>
+  </g>
+  <!-- Pickup Mat Contour -->
+  <path d="M 70 70 L 330 70 L 350 230 L 50 230 Z" rx="12" fill="url(#pkMat)" stroke="#f97316" stroke-width="3" filter="drop-shadow(0 10px 15px rgba(0,0,0,0.6))"/>
+  <path d="M 85 85 L 315 85 L 332 215 L 68 215 Z" fill="#18181b" stroke="#52525b" stroke-width="2"/>
+  <!-- Tire Tread Pattern -->
+  <g stroke="#3f3f46" stroke-width="4">
+    <path d="M 120 105 L 150 120 L 120 135 M 170 105 L 200 120 L 170 135 M 220 105 L 250 120 L 220 135"/>
+    <path d="M 120 160 L 150 175 L 120 190 M 170 160 L 200 175 L 170 190 M 220 160 L 250 175 L 220 190"/>
+  </g>
+  <!-- Reinforced center -->
+  <rect x="135" y="115" width="130" height="70" rx="8" fill="#27272a" stroke="#f97316" stroke-width="1.5"/>
+  <text x="200" y="155" fill="#f97316" font-family="sans-serif" font-size="12" font-weight="bold" text-anchor="middle">OFF-ROAD HEAVY TPE</text>
+  <!-- Badge -->
+  <rect x="15" y="15" width="140" height="26" rx="13" fill="#ea580c" opacity="0.95"/>
+  <text x="85" y="32" fill="#ffffff" font-family="sans-serif" font-size="11" font-weight="bold" text-anchor="middle">PICKUP TRUCK 4x4</text>
+</svg>

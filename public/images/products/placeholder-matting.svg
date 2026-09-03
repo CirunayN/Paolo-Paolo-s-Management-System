@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="100%" height="100%">
+  <rect width="400" height="300" fill="#1e293b"/>
+  <rect x="70" y="60" width="260" height="180" rx="12" fill="#0f172a" stroke="#334155" stroke-width="2"/>
+  <circle cx="200" cy="130" r="36" fill="#1e293b"/>
+  <path d="M 185 145 L 195 130 L 205 140 L 215 125 L 225 145 Z" fill="#64748b"/>
+  <circle cx="192" cy="120" r="4" fill="#64748b"/>
+  <text x="200" y="195" fill="#94a3b8" font-family="sans-serif" font-size="13" font-weight="600" text-anchor="middle">PAOLO PAOLO PRODUCT</text>
+  <text x="200" y="215" fill="#64748b" font-family="sans-serif" font-size="11" text-anchor="middle">Matting &amp; Accessories</text>
+</svg>
