@@ -118,8 +118,8 @@
                 <span class="font-display tracking-wide">Menu</span>
             </button>
 
-            <!-- Brand Logo & Name -->
-            <button type="button" id="logoToggleBtn" title="Open navigation menu"
+            <!-- Brand Logo & Name (Clicking navigates to Dashboard) -->
+            <a href="{{ route('dashboard') }}" title="Go to Dashboard"
                 class="flex items-center gap-3 group p-1.5 rounded-2xl hover:bg-slate-100 dark:hover:bg-dark-800/60 transition-all cursor-pointer focus:outline-none">
                 <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-brand-600 via-cyan-500 to-blue-600 p-0.5 shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform flex items-center justify-center">
                     <div class="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center text-cyan-400 font-black text-xl sm:text-2xl font-display">
@@ -127,14 +127,14 @@
                     </div>
                 </div>
                 <div class="text-left hidden xs:block">
-                    <div class="font-display font-black text-slate-900 dark:text-white text-base sm:text-lg tracking-wider">
+                    <div class="font-display font-black text-slate-900 dark:text-white text-base sm:text-lg tracking-wider group-hover:text-cyan-500 transition-colors">
                         PAOLO PAOLO
                     </div>
                     <div class="text-xs font-semibold text-slate-500 dark:text-slate-400 -mt-0.5">
                         Matting &amp; Accessories
                     </div>
                 </div>
-            </button>
+            </a>
         </div>
 
         <!-- Right: Actions, Theme Switcher, Quick Info, Profile -->
@@ -175,17 +175,17 @@
     <aside id="navDrawer" class="fixed inset-y-0 left-0 z-50 w-80 sm:w-96 bg-white dark:bg-[#0c1222] border-r border-slate-200 dark:border-slate-800 shadow-2xl transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
         <!-- Drawer Header -->
         <div class="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-cyan-400 p-0.5 flex items-center justify-center">
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-cyan-400 p-0.5 flex items-center justify-center group-hover:scale-105 transition-transform">
                     <div class="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center text-cyan-400 font-bold text-lg font-display">
                         PP
                     </div>
                 </div>
                 <div>
-                    <h3 class="font-display font-black text-slate-900 dark:text-white text-base">Paolo Paolo</h3>
+                    <h3 class="font-display font-black text-slate-900 dark:text-white text-base group-hover:text-cyan-500 transition-colors">Paolo Paolo</h3>
                     <p class="text-xs text-slate-500 dark:text-slate-400">Matting &amp; Accessories</p>
                 </div>
-            </div>
+            </a>
             <button type="button" id="closeDrawerBtn" class="w-9 h-9 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-dark-800 flex items-center justify-center text-lg">
                 <i class="fas fa-times"></i>
             </button>
@@ -343,9 +343,8 @@
             });
         }
 
-        // 2. Sliding Navigation Drawer (Menu Button & Logo Click Opens, Module Click Closes)
+        // 2. Sliding Navigation Drawer (Menu Button Click Opens, Module Click Closes)
         const menuBtn = document.getElementById('menuToggleBtn');
-        const logoBtn = document.getElementById('logoToggleBtn');
         const drawer = document.getElementById('navDrawer');
         const backdrop = document.getElementById('navDrawerBackdrop');
         const closeBtn = document.getElementById('closeDrawerBtn');
@@ -361,7 +360,6 @@
         }
 
         if (menuBtn) menuBtn.addEventListener('click', openDrawer);
-        if (logoBtn) logoBtn.addEventListener('click', openDrawer);
         if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
         if (backdrop) backdrop.addEventListener('click', closeDrawer);
 
