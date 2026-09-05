@@ -59,36 +59,22 @@
 
             <!-- Vehicle Brand -->
             <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Vehicle Brand</label>
-                <input type="text" name="vehicle_brand" list="vehicleBrandSuggestions" value="{{ old('vehicle_brand', 'Toyota') }}" placeholder="e.g. Toyota, Mitsubishi, Ford, Universal"
-                    class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
-                <datalist id="vehicleBrandSuggestions">
-                    <option value="Universal">
-                    <option value="Toyota">
-                    <option value="Mitsubishi">
-                    <option value="Ford">
-                    <option value="Honda">
-                    <option value="Nissan">
-                    <option value="Isuzu">
-                    <option value="Suzuki">
-                    <option value="Hyundai">
-                    <option value="Kia">
-                    <option value="BYD">
-                    <option value="Geely">
-                    <option value="MG">
-                    <option value="Chery">
-                    <option value="GAC">
-                    <option value="Changan">
-                    <option value="Jetour">
-                    <option value="Lexus">
-                    <option value="Subaru">
-                    <option value="Mazda">
-                    @if(isset($brands))
+                <div class="flex items-center justify-between mb-1.5">
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                        Vehicle Brand <span class="text-rose-500">*</span>
+                    </label>
+                    <button type="button" onclick="openNewBrandModal()" class="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1">
+                        <i class="fas fa-plus-circle"></i> + New Brand
+                    </button>
+                </div>
+                <select name="vehicle_brand" id="brandSelect" required class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                    <option value="">Select Vehicle Brand</option>
                     @foreach($brands as $brand)
-                    <option value="{{ $brand }}">
+                    <option value="{{ $brand }}" {{ old('vehicle_brand', 'Toyota') == $brand ? 'selected' : '' }}>
+                        {{ $brand }}
+                    </option>
                     @endforeach
-                    @endif
-                </datalist>
+                </select>
             </div>
 
             <!-- Vehicle Model / Year -->
@@ -109,23 +95,22 @@
 
             <!-- Unit of Measure -->
             <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                    Unit of Measure <span class="text-rose-500">*</span>
-                </label>
-                <input type="text" name="unit_of_measure" list="unitOfMeasureList" value="{{ old('unit_of_measure', 'Set') }}" required placeholder="e.g. Set, Pc, Roll, Box, Pair..."
-                    class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
-                <datalist id="unitOfMeasureList">
-                    <option value="Set">
-                    <option value="Pc">
-                    <option value="Pair">
-                    <option value="Roll">
-                    <option value="Box">
-                    <option value="Kit">
-                    <option value="Meter">
-                    <option value="Bottle">
-                    <option value="Can">
-                    <option value="Pack">
-                </datalist>
+                <div class="flex items-center justify-between mb-1.5">
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                        Unit of Measure <span class="text-rose-500">*</span>
+                    </label>
+                    <button type="button" onclick="openNewUomModal()" class="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1">
+                        <i class="fas fa-plus-circle"></i> + New Unit
+                    </button>
+                </div>
+                <select name="unit_of_measure" id="uomSelect" required class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                    <option value="">Select Unit</option>
+                    @foreach($unitsOfMeasure as $uom)
+                    <option value="{{ $uom }}" {{ old('unit_of_measure', 'Set') == $uom ? 'selected' : '' }}>
+                        {{ $uom }}
+                    </option>
+                    @endforeach
+                </select>
             </div>
 
             <!-- Stock Alert Level -->
@@ -410,6 +395,77 @@ function submitNewCategory(e) {
         errBox.classList.remove('hidden');
     });
 }
+// Vehicle Brand Modal
+function openNewBrandModal() {
+    document.getElementById('newBrandForm').reset();
+    const modal = document.getElementById('newBrandModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    setTimeout(() => document.getElementById('newBrandInput').focus(), 150);
+}
+
+function closeNewBrandModal() {
+    const modal = document.getElementById('newBrandModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+function submitNewBrand(e) {
+    e.preventDefault();
+    const name = document.getElementById('newBrandInput').value.trim();
+    if (!name) return;
+
+    const select = document.getElementById('brandSelect');
+    let exists = false;
+    for (let i = 0; i < select.options.length; i++) {
+        if (select.options[i].value.toLowerCase() === name.toLowerCase()) {
+            select.selectedIndex = i;
+            exists = true;
+            break;
+        }
+    }
+    if (!exists) {
+        const opt = new Option(name, name, true, true);
+        select.add(opt);
+    }
+    closeNewBrandModal();
+}
+
+// Unit of Measure Modal
+function openNewUomModal() {
+    document.getElementById('newUomForm').reset();
+    const modal = document.getElementById('newUomModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    setTimeout(() => document.getElementById('newUomInput').focus(), 150);
+}
+
+function closeNewUomModal() {
+    const modal = document.getElementById('newUomModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+function submitNewUom(e) {
+    e.preventDefault();
+    const name = document.getElementById('newUomInput').value.trim();
+    if (!name) return;
+
+    const select = document.getElementById('uomSelect');
+    let exists = false;
+    for (let i = 0; i < select.options.length; i++) {
+        if (select.options[i].value.toLowerCase() === name.toLowerCase()) {
+            select.selectedIndex = i;
+            exists = true;
+            break;
+        }
+    }
+    if (!exists) {
+        const opt = new Option(name, name, true, true);
+        select.add(opt);
+    }
+    closeNewUomModal();
+}
 </script>
 
 <!-- MODAL: Quick Add Category -->
@@ -446,6 +502,74 @@ function submitNewCategory(e) {
                 <button type="submit" id="newCatSubmitBtn"
                     class="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold shadow-lg shadow-cyan-500/20 transition-all">
                     Save Category
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: Quick Add Vehicle Brand -->
+<div id="newBrandModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-2xl space-y-4 animate-fade-in">
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-500 flex items-center justify-center text-sm">
+                    <i class="fas fa-car-side"></i>
+                </span>
+                <h3 class="text-base font-bold font-display text-slate-900 dark:text-white">Add Vehicle Brand</h3>
+            </div>
+            <button type="button" onclick="closeNewBrandModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg flex items-center justify-center">&times;</button>
+        </div>
+
+        <form id="newBrandForm" onsubmit="submitNewBrand(event)" class="space-y-4 text-xs">
+            <div>
+                <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Brand Name <span class="text-rose-500">*</span></label>
+                <input type="text" id="newBrandInput" required placeholder="e.g. VinFast, Zeekr, Omoda, Changan..."
+                    class="w-full py-2.5 px-3 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500 text-sm">
+                <span class="text-[11px] text-slate-400 mt-1 block">Adds this brand to the list and selects it immediately.</span>
+            </div>
+
+            <div class="pt-2 flex items-center justify-end gap-2.5 border-t border-slate-200 dark:border-slate-800">
+                <button type="button" onclick="closeNewBrandModal()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-dark-800 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-300 transition-colors">
+                    Cancel
+                </button>
+                <button type="submit"
+                    class="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold shadow-lg shadow-cyan-500/20 transition-all">
+                    Add Brand
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: Quick Add Unit of Measure -->
+<div id="newUomModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-2xl space-y-4 animate-fade-in">
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-500 flex items-center justify-center text-sm">
+                    <i class="fas fa-cubes"></i>
+                </span>
+                <h3 class="text-base font-bold font-display text-slate-900 dark:text-white">Add Unit of Measure</h3>
+            </div>
+            <button type="button" onclick="closeNewUomModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg flex items-center justify-center">&times;</button>
+        </div>
+
+        <form id="newUomForm" onsubmit="submitNewUom(event)" class="space-y-4 text-xs">
+            <div>
+                <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Unit Name <span class="text-rose-500">*</span></label>
+                <input type="text" id="newUomInput" required placeholder="e.g. Bundle, Tube, Liter, Box..."
+                    class="w-full py-2.5 px-3 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500 text-sm">
+                <span class="text-[11px] text-slate-400 mt-1 block">Adds this unit to the dropdown list and selects it immediately.</span>
+            </div>
+
+            <div class="pt-2 flex items-center justify-end gap-2.5 border-t border-slate-200 dark:border-slate-800">
+                <button type="button" onclick="closeNewUomModal()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-dark-800 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-300 transition-colors">
+                    Cancel
+                </button>
+                <button type="submit"
+                    class="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold shadow-lg shadow-cyan-500/20 transition-all">
+                    Add Unit
                 </button>
             </div>
         </form>

@@ -50,11 +50,26 @@ class ProductController extends Controller
         return redirect()->route('products.index', ['search' => $product->product_code]);
     }
 
+    public static function getVehicleBrands(): array
+    {
+        $defaults = ['Universal', 'Toyota', 'Mitsubishi', 'Ford', 'Honda', 'Nissan', 'Isuzu', 'Suzuki', 'Hyundai', 'Kia', 'BYD', 'Geely', 'MG', 'Chery', 'GAC', 'Changan', 'Jetour', 'Lexus', 'Subaru', 'Mazda'];
+        $fromDb = Product::whereNotNull('vehicle_brand')->where('vehicle_brand', '!=', '')->distinct()->pluck('vehicle_brand')->toArray();
+        return array_values(array_unique(array_merge($defaults, $fromDb)));
+    }
+
+    public static function getUnitsOfMeasure(): array
+    {
+        $defaults = ['Set', 'Pc', 'Pair', 'Roll', 'Box', 'Kit', 'Meter', 'Bottle', 'Can', 'Pack'];
+        $fromDb = Product::whereNotNull('unit_of_measure')->where('unit_of_measure', '!=', '')->distinct()->pluck('unit_of_measure')->toArray();
+        return array_values(array_unique(array_merge($defaults, $fromDb)));
+    }
+
     public function create()
     {
         $categories = Category::orderBy('name')->get();
-        $brands = Product::whereNotNull('vehicle_brand')->where('vehicle_brand', '!=', '')->distinct()->pluck('vehicle_brand');
-        return view('products.create', compact('categories', 'brands'));
+        $brands = self::getVehicleBrands();
+        $unitsOfMeasure = self::getUnitsOfMeasure();
+        return view('products.create', compact('categories', 'brands', 'unitsOfMeasure'));
     }
 
     public function store(Request $request)
@@ -195,8 +210,9 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Category::orderBy('name')->get();
-        $brands = Product::whereNotNull('vehicle_brand')->where('vehicle_brand', '!=', '')->distinct()->pluck('vehicle_brand');
-        return view('products.edit', compact('product', 'categories', 'brands'));
+        $brands = self::getVehicleBrands();
+        $unitsOfMeasure = self::getUnitsOfMeasure();
+        return view('products.edit', compact('product', 'categories', 'brands', 'unitsOfMeasure'));
     }
 
     public function update(Request $request, Product $product)

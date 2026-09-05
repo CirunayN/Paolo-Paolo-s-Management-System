@@ -29,7 +29,8 @@ class StockInController extends Controller
     {
         $products = Product::with('inventory')->where('is_active', true)->orderBy('name')->get();
         $categories = Category::orderBy('name')->get();
-        $vehicleBrands = Product::whereNotNull('vehicle_brand')->where('vehicle_brand', '!=', '')->distinct()->pluck('vehicle_brand');
+        $vehicleBrands = ProductController::getVehicleBrands();
+        $unitsOfMeasure = ProductController::getUnitsOfMeasure();
         $recentSources = StockIn::whereNotNull('source')->distinct()->pluck('source');
 
         // Generate auto reference number: STK-YYYYMMDD-XXXX
@@ -38,7 +39,7 @@ class StockInController extends Controller
         $seq = $latest ? (intval(substr($latest->reference_no, -4)) + 1) : 1;
         $autoRef = 'STK-' . $datePrefix . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
 
-        return view('stock_in.create', compact('products', 'categories', 'vehicleBrands', 'recentSources', 'autoRef'));
+        return view('stock_in.create', compact('products', 'categories', 'vehicleBrands', 'unitsOfMeasure', 'recentSources', 'autoRef'));
     }
 
     public function store(Request $request)
