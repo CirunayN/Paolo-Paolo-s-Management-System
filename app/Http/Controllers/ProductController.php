@@ -144,26 +144,60 @@ class ProductController extends Controller
             'is_active' => 'boolean',
             'images' => 'nullable|array|max:5',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
+            'remove_images' => 'nullable|array',
+            'remove_images.*' => 'string',
         ]);
 
         $currentImages = is_array($product->images) ? $product->images : ($product->image_path ? [$product->image_path] : []);
+        $removedCount = 0;
 
+        // Human Error Prevention & Safety Validation on Image Removal
+        if ($request->filled('remove_images') && is_array($request->remove_images)) {
+            $toRemove = $request->remove_images;
+            $filteredImages = [];
+
+            foreach ($currentImages as $img) {
+                // Strict validation: Verify the image path actually belongs to this product
+                if (in_array($img, $toRemove)) {
+                    // Safe cleanup: Only delete from disk if it was an uploaded file and not default SVG assets
+                    if (str_starts_with($img, 'images/products/') && !str_contains($img, 'placeholder') && !str_ends_with($img, '.svg')) {
+                        $fullPath = public_path($img);
+                        if (File::exists($fullPath)) {
+                            File::delete($fullPath);
+                        }
+                    }
+                    $removedCount++;
+                } else {
+                    $filteredImages[] = $img;
+                }
+            }
+            $currentImages = $filteredImages;
+        }
+
+        // New Image Uploads (Up to remaining slots out of 5)
         if ($request->hasFile('images')) {
+            $availableSlots = max(0, 5 - count($currentImages));
+            if ($availableSlots <= 0) {
+                return back()->withErrors([
+                    'images' => 'Maximum limit of 5 photos reached. Please remove existing photos before adding new ones.'
+                ])->withInput();
+            }
+
             $uploadDir = public_path('images/products');
             if (!File::exists($uploadDir)) {
                 File::makeDirectory($uploadDir, 0777, true, true);
             }
 
             $newPaths = [];
-            foreach (array_slice($request->file('images'), 0, 5) as $file) {
+            foreach (array_slice($request->file('images'), 0, $availableSlots) as $file) {
                 $filename = time() . '_' . Str::random(6) . '.' . $file->getClientOriginalExtension();
                 $file->move($uploadDir, $filename);
                 $newPaths[] = 'images/products/' . $filename;
             }
-            $currentImages = array_slice(array_merge($newPaths, $currentImages), 0, 5);
+            $currentImages = array_merge($currentImages, $newPaths);
         }
 
-        $validated['images'] = $currentImages;
+        $validated['images'] = array_values($currentImages);
         $validated['image_path'] = $currentImages[0] ?? null;
         $validated['is_active'] = $request->has('is_active');
 
@@ -175,7 +209,12 @@ class ProductController extends Controller
             ]);
         }
 
-        return redirect()->route('products.index')->with('success', "Product '{$product->name}' updated successfully!");
+        $successMsg = "Product '{$product->name}' updated successfully!";
+        if ($removedCount > 0) {
+            $successMsg .= " ({$removedCount} " . Str::plural('photo', $removedCount) . " removed)";
+        }
+
+        return redirect()->route('products.index')->with('success', $successMsg);
     }
 
     public function destroy(Product $product)
