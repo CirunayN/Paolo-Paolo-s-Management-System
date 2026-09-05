@@ -138,7 +138,7 @@
         <div class="sub-text">D.A MATTING &amp; ACCESSORIES</div>
         <div class="contact-info">
             Automotive Deep Dish, Diamond Mats &amp; Car Accessories<br>
-            Official Sales Receipt<br>
+            Davao City, Philippines<br>
             Contact: 0917-123-4567 / 0928-765-4321
         </div>
     </div>

@@ -102,16 +102,16 @@ class DatabaseSeeder extends Seeder
             ),
         ];
 
-        // 4. Customers with registered vehicles
+        // 4. Customers with registered vehicles (Davao City Area)
         $customersData = [
-            ['name' => 'Juan Dela Cruz', 'contact_number' => '0917-889-1122', 'email' => 'juan.delacruz@gmail.com', 'vehicle_make_model' => 'Toyota Fortuner 2023', 'plate_number' => 'NBH-4821', 'address' => 'Bacolod City'],
-            ['name' => 'Mark Anthony Reyes', 'contact_number' => '0920-554-3321', 'email' => 'mark.reyes@yahoo.com', 'vehicle_make_model' => 'Honda Civic RS 2022', 'plate_number' => 'DAT-9812', 'address' => 'Talisay City'],
-            ['name' => 'Carlo Gomez', 'contact_number' => '0918-333-4455', 'email' => 'carlo.gomez@gmail.com', 'vehicle_make_model' => 'Mitsubishi Montero Sport 2021', 'plate_number' => 'NAN-3091', 'address' => 'Silay City'],
-            ['name' => 'Bryan Tan', 'contact_number' => '0922-777-6611', 'email' => 'bryan.tan@outlook.com', 'vehicle_make_model' => 'Ford Ranger Next-Gen 2023', 'plate_number' => 'CBT-1920', 'address' => 'Bacolod City'],
-            ['name' => 'Dennis Ramos', 'contact_number' => '0915-442-8899', 'email' => 'dennis.ramos@gmail.com', 'vehicle_make_model' => 'Toyota Hilux Conquest 2022', 'plate_number' => 'NBO-5512', 'address' => 'Bago City'],
-            ['name' => 'Kevin Lim', 'contact_number' => '0927-111-9922', 'email' => 'kevin.lim@gmail.com', 'vehicle_make_model' => 'Toyota Vios XLE 2021', 'plate_number' => 'GAF-7731', 'address' => 'Bacolod City'],
-            ['name' => 'Alex Cruz', 'contact_number' => '0919-888-2233', 'email' => 'alex.cruz@yahoo.com', 'vehicle_make_model' => 'Yamaha NMAX 155 V2', 'plate_number' => '481-NMX', 'address' => 'Talisay City'],
-            ['name' => 'Ricardo Dizon', 'contact_number' => '0921-665-4411', 'email' => 'ricardo.dizon@gmail.com', 'vehicle_make_model' => 'Honda ADV 160', 'plate_number' => '773-ADV', 'address' => 'Bacolod City'],
+            ['name' => 'Juan Dela Cruz', 'contact_number' => '0917-889-1122', 'email' => 'juan.delacruz@gmail.com', 'vehicle_make_model' => 'Toyota Fortuner 2023', 'plate_number' => 'NBH-4821', 'address' => 'Matina, Davao City'],
+            ['name' => 'Mark Anthony Reyes', 'contact_number' => '0920-554-3321', 'email' => 'mark.reyes@yahoo.com', 'vehicle_make_model' => 'Honda Civic RS 2022', 'plate_number' => 'DAT-9812', 'address' => 'Buhangin, Davao City'],
+            ['name' => 'Carlo Gomez', 'contact_number' => '0918-333-4455', 'email' => 'carlo.gomez@gmail.com', 'vehicle_make_model' => 'Mitsubishi Montero Sport 2021', 'plate_number' => 'NAN-3091', 'address' => 'Bajada, Davao City'],
+            ['name' => 'Bryan Tan', 'contact_number' => '0922-777-6611', 'email' => 'bryan.tan@outlook.com', 'vehicle_make_model' => 'Ford Ranger Next-Gen 2023', 'plate_number' => 'CBT-1920', 'address' => 'Lanang, Davao City'],
+            ['name' => 'Dennis Ramos', 'contact_number' => '0915-442-8899', 'email' => 'dennis.ramos@gmail.com', 'vehicle_make_model' => 'Toyota Hilux Conquest 2022', 'plate_number' => 'NBO-5512', 'address' => 'Toril, Davao City'],
+            ['name' => 'Kevin Lim', 'contact_number' => '0927-111-9922', 'email' => 'kevin.lim@gmail.com', 'vehicle_make_model' => 'Toyota Vios XLE 2021', 'plate_number' => 'GAF-7731', 'address' => 'Ecoland, Davao City'],
+            ['name' => 'Alex Cruz', 'contact_number' => '0919-888-2233', 'email' => 'alex.cruz@yahoo.com', 'vehicle_make_model' => 'Yamaha NMAX 155 V2', 'plate_number' => '481-NMX', 'address' => 'Poblacion District, Davao City'],
+            ['name' => 'Ricardo Dizon', 'contact_number' => '0921-665-4411', 'email' => 'ricardo.dizon@gmail.com', 'vehicle_make_model' => 'Honda ADV 160', 'plate_number' => '773-ADV', 'address' => 'Bangkal, Davao City'],
         ];
 
         $customers = [];

@@ -200,9 +200,29 @@
                 </div>
 
                 <div>
-                    <label class="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Address</label>
-                    <input type="text" name="address" id="custAddress" placeholder="City or Barangay"
+                    <label class="block text-slate-700 dark:text-slate-300 font-semibold mb-1">Davao City Location / Barangay</label>
+                    <input type="text" name="address" id="custAddress" list="davaoLocationsList" placeholder="e.g. Matina, Davao City"
                         class="w-full py-2 px-3 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-1 focus:ring-cyan-500">
+                    <datalist id="davaoLocationsList">
+                        <option value="Poblacion, Davao City">
+                        <option value="Matina, Davao City">
+                        <option value="Buhangin, Davao City">
+                        <option value="Bajada (J.P. Laurel), Davao City">
+                        <option value="Lanang, Davao City">
+                        <option value="Toril, Davao City">
+                        <option value="Ecoland, Davao City">
+                        <option value="Bangkal, Davao City">
+                        <option value="Agdao, Davao City">
+                        <option value="Panacan, Davao City">
+                        <option value="Calinan, Davao City">
+                        <option value="Sasa, Davao City">
+                        <option value="Cabantian, Davao City">
+                        <option value="Maa, Davao City">
+                        <option value="Tibungco, Davao City">
+                        <option value="Bago Aplaya, Davao City">
+                        <option value="Mintal, Davao City">
+                    </datalist>
+                    <p class="text-[10px] text-slate-400 mt-1">Paolo Paolo serves Davao City and surrounding districts.</p>
                 </div>
             </div>
 

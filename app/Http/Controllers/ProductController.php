@@ -42,6 +42,14 @@ class ProductController extends Controller
         return view('products.index', compact('products', 'categories', 'brands'));
     }
 
+    public function show(Product $product)
+    {
+        if (Auth::check() && Auth::user()->isAdmin()) {
+            return redirect()->route('products.edit', $product->id);
+        }
+        return redirect()->route('products.index', ['search' => $product->product_code]);
+    }
+
     public function create()
     {
         $categories = Category::orderBy('name')->get();

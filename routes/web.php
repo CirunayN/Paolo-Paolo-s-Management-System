@@ -28,7 +28,6 @@ Route::middleware(['auth'])->group(function () {
 
     // 3. Products Catalog - Viewable by all, Modifiable ONLY by Admin
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-    Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 
     // 4. Inventory - Viewable by all, Adjustments ONLY by Admin
     Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
@@ -41,6 +40,9 @@ Route::middleware(['auth'])->group(function () {
     // Profile (All Users)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    // View single product (constrained to numeric ID only, defined after static routes)
+    Route::get('/products/{product}', [ProductController::class, 'show'])->whereNumber('product')->name('products.show');
 
     // =========================================================================
     // ADMIN ONLY ROUTES (Cashiers Restricted)

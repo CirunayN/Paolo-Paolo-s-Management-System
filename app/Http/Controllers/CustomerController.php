@@ -19,7 +19,8 @@ class CustomerController extends Controller
                 $q->where('name', 'like', "%{$s}%")
                   ->orWhere('contact_number', 'like', "%{$s}%")
                   ->orWhere('plate_number', 'like', "%{$s}%")
-                  ->orWhere('vehicle_make_model', 'like', "%{$s}%");
+                  ->orWhere('vehicle_make_model', 'like', "%{$s}%")
+                  ->orWhere('address', 'like', "%{$s}%");
             });
         }
 
