@@ -20,8 +20,8 @@
                 <span class="font-mono font-bold text-cyan-400 text-sm">{{ $stockIn->reference_no }}</span>
             </div>
             <div>
-                <span class="text-slate-400 block text-[10px] uppercase font-semibold">Supplier / Distributor</span>
-                <span class="font-semibold text-white">{{ $stockIn->supplier ? $stockIn->supplier->supplier_name : 'Direct Delivery' }}</span>
+                <span class="text-slate-400 block text-[10px] uppercase font-semibold">Source / Wholesaler</span>
+                <span class="font-semibold text-white">{{ $stockIn->source ?: ($stockIn->supplier ? $stockIn->supplier->supplier_name : 'General Wholesaler / Spot') }}</span>
             </div>
             <div>
                 <span class="text-slate-400 block text-[10px] uppercase font-semibold">Received Date</span>

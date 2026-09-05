@@ -21,11 +21,11 @@
             <table class="w-full text-left text-xs">
                 <thead>
                     <tr class="bg-dark-850 text-slate-400 uppercase tracking-wider text-[10px] border-b border-slate-800">
-                        <th class="py-3 px-4">Reference #</th>
-                        <th class="py-3 px-4">Supplier</th>
-                        <th class="py-3 px-4">Received Date</th>
-                        <th class="py-3 px-4 text-center">Items Count</th>
-                        <th class="py-3 px-4 text-right">Total Shipment Cost</th>
+                        <th class="py-3 px-4">PO # / Ref</th>
+                        <th class="py-3 px-4">Source / Wholesaler</th>
+                        <th class="py-3 px-4">Delivery Date</th>
+                        <th class="py-3 px-4 text-center">Items Received</th>
+                        <th class="py-3 px-4 text-right">Total Cost</th>
                         <th class="py-3 px-4">Received By</th>
                         <th class="py-3 px-4 text-center">Details</th>
                     </tr>
@@ -37,7 +37,7 @@
                             {{ $stk->reference_no }}
                         </td>
                         <td class="py-3.5 px-4 font-semibold text-white">
-                            {{ $stk->supplier ? $stk->supplier->supplier_name : 'Direct / Unspecified' }}
+                            {{ $stk->source ?: ($stk->supplier ? $stk->supplier->supplier_name : 'General Wholesaler / Spot') }}
                         </td>
                         <td class="py-3.5 px-4 text-slate-300 font-mono text-[11px]">
                             {{ $stk->received_date->format('M d, Y') }}

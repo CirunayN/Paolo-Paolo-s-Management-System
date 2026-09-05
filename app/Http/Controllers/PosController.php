@@ -48,6 +48,7 @@ class PosController extends Controller
             'installation_fee' => 'nullable|numeric|min:0',
             'discount_amount' => 'nullable|numeric|min:0',
             'payment_method' => 'required|string|in:Cash,GCash / Maya,Card,Bank Transfer',
+            'payment_reference' => 'nullable|string|max:100',
             'amount_tendered' => 'required|numeric|min:0',
             'notes' => 'nullable|string|max:500',
         ]);
@@ -94,6 +95,7 @@ class PosController extends Controller
                 'discount_amount' => $discount,
                 'total_amount' => $totalAmount,
                 'payment_method' => $validated['payment_method'],
+                'payment_reference' => $validated['payment_reference'] ?? null,
                 'amount_tendered' => $tendered,
                 'change_amount' => $change,
                 'payment_status' => 'Paid',

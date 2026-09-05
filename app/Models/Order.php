@@ -21,6 +21,7 @@ class Order extends Model
         'discount_amount',
         'total_amount',
         'payment_method',
+        'payment_reference',
         'amount_tendered',
         'change_amount',
         'payment_status',

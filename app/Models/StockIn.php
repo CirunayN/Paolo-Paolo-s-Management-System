@@ -12,6 +12,7 @@ class StockIn extends Model
     protected $fillable = [
         'reference_no',
         'supplier_id',
+        'source',
         'user_id',
         'total_cost',
         'notes',

@@ -26,8 +26,8 @@ class StockInController extends Controller
 
     public function create()
     {
-        $suppliers = Supplier::orderBy('supplier_name')->get();
         $products = Product::with('inventory')->where('is_active', true)->orderBy('name')->get();
+        $recentSources = StockIn::whereNotNull('source')->distinct()->pluck('source');
 
         // Generate auto reference number: STK-YYYYMMDD-XXXX
         $datePrefix = date('Ymd');
@@ -35,14 +35,14 @@ class StockInController extends Controller
         $seq = $latest ? (intval(substr($latest->reference_no, -4)) + 1) : 1;
         $autoRef = 'STK-' . $datePrefix . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
 
-        return view('stock_in.create', compact('suppliers', 'products', 'autoRef'));
+        return view('stock_in.create', compact('products', 'recentSources', 'autoRef'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'reference_no' => 'required|string|max:50|unique:stock_ins,reference_no',
-            'supplier_id' => 'nullable|exists:suppliers,id',
+            'source' => 'nullable|string|max:150',
             'received_date' => 'required|date',
             'notes' => 'nullable|string|max:500',
             'items' => 'required|array|min:1',
@@ -63,7 +63,7 @@ class StockInController extends Controller
             // 1. Create Stock-In Header
             $stockIn = StockIn::create([
                 'reference_no' => strtoupper($validated['reference_no']),
-                'supplier_id' => $validated['supplier_id'] ?? null,
+                'source' => $validated['source'] ?: 'General Wholesaler / Spot Importer',
                 'user_id' => $user->id,
                 'total_cost' => $totalCost,
                 'notes' => $validated['notes'] ?? null,

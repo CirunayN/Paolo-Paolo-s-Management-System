@@ -139,7 +139,7 @@
         <div class="contact-info">
             Automotive Deep Dish, Diamond Mats &amp; Car Accessories<br>
             Davao City, Philippines<br>
-            Contact: 0917-123-4567 / 0928-765-4321
+            Facebook: Paolo Paolo | Contact: 0917-123-4567
         </div>
     </div>
 
@@ -222,6 +222,12 @@
             <span>Payment Method:</span>
             <span>{{ $order->payment_method }}</span>
         </div>
+        @if(!empty($order->payment_reference))
+        <div class="row">
+            <span>Ref No / Trx ID:</span>
+            <strong style="font-family: monospace;">{{ $order->payment_reference }}</strong>
+        </div>
+        @endif
         <div class="row">
             <span>Amount Tendered:</span>
             <span>₱{{ number_format($order->amount_tendered, 2) }}</span>
@@ -234,10 +240,17 @@
 
     <!-- Footer -->
     <div class="footer">
-        <p>Thank you for trusting</p>
-        <strong>PAOLO PAOLO D.A MATTING!</strong>
-        <p style="margin-top: 4px;">Items in original packaging can be exchanged within 7 days with this official receipt.</p>
-        <p style="margin-top: 4px; font-size: 8px;">*** DRIVE SAFELY &amp; ENJOY YOUR RIDE ***</p>
+        <p>Thank you for choosing</p>
+        <strong style="font-size: 11px; letter-spacing: 0.5px;">PAOLO PAOLO D.A MATTING &amp; ACCESSORIES</strong>
+        
+        <div style="margin: 6px 0; padding: 5px 0; border-top: 1px dotted #555; border-bottom: 1px dotted #555;">
+            <p style="font-weight: 700; font-size: 10px;">Like &amp; Follow us on Facebook:</p>
+            <p style="font-size: 11px; font-weight: 900; letter-spacing: 0.5px;">Paolo Paolo</p>
+            <p style="font-size: 8px; color: #444;">facebook.com/Paolo Paolo</p>
+        </div>
+
+        <p style="margin-top: 4px;">Strictly 7 days replacement for factory defects with this receipt.</p>
+        <p style="margin-top: 3px; font-size: 8px;">*** DRIVE SAFELY &amp; ENJOY YOUR RIDE! ***</p>
     </div>
 </div>
 

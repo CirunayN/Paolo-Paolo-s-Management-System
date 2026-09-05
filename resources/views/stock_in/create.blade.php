@@ -35,17 +35,24 @@
                     class="w-full py-2 px-3 bg-dark-900 border border-slate-700/80 rounded-xl text-white text-xs uppercase font-mono focus:ring-1 focus:ring-cyan-500">
             </div>
 
-            <!-- Supplier -->
+            <!-- Source / Wholesaler (No specific supplier required) -->
             <div>
                 <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                    Supplier / Distributor
+                    Source / Wholesaler (Optional)
                 </label>
-                <select name="supplier_id" class="w-full py-2 px-3 bg-dark-900 border border-slate-700/80 rounded-xl text-white text-xs focus:ring-1 focus:ring-cyan-500">
-                    <option value="">Select Supplier</option>
-                    @foreach($suppliers as $sup)
-                    <option value="{{ $sup->id }}">{{ $sup->supplier_name }}</option>
+                <input type="text" name="source" list="sourceSuggestions" value="{{ old('source') }}" placeholder="e.g. Banawe Importer, Shopee Bulk, Spot Trader"
+                    class="w-full py-2 px-3 bg-dark-900 border border-slate-700/80 rounded-xl text-white text-xs focus:ring-1 focus:ring-cyan-500">
+                <datalist id="sourceSuggestions">
+                    <option value="Banawe / Manila Wholesaler">
+                    <option value="Binondo Importer">
+                    <option value="Direct Container Cargo">
+                    <option value="Shopee / Online Bulk">
+                    <option value="Davao Spot Trader">
+                    <option value="Walk-in Consignment">
+                    @foreach($recentSources as $rs)
+                    <option value="{{ $rs }}">
                     @endforeach
-                </select>
+                </datalist>
             </div>
 
             <!-- Received Date -->

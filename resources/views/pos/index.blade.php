@@ -253,15 +253,26 @@
                     <i class="fas fa-money-bill-wave mr-1"></i> Cash
                 </button>
                 <button type="button" onclick="setPaymentMethod('GCash / Maya')" class="pay-method-btn p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 font-bold text-slate-700 dark:text-slate-300 text-center">
-                    <i class="fas fa-mobile-screen mr-1"></i> GCash / Maya
+                    <i class="fas fa-mobile-screen mr-1 text-sky-500"></i> GCash / Maya
                 </button>
                 <button type="button" onclick="setPaymentMethod('Card')" class="pay-method-btn p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 font-bold text-slate-700 dark:text-slate-300 text-center">
-                    <i class="fas fa-credit-card mr-1"></i> Card
+                    <i class="fas fa-credit-card mr-1 text-purple-500"></i> Card
                 </button>
                 <button type="button" onclick="setPaymentMethod('Bank Transfer')" class="pay-method-btn p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 font-bold text-slate-700 dark:text-slate-300 text-center">
-                    <i class="fas fa-building-columns mr-1"></i> Bank
+                    <i class="fas fa-building-columns mr-1 text-amber-500"></i> Bank
                 </button>
             </div>
+        </div>
+
+        <!-- Reference Number (GCash / Maya / Card / Bank) -->
+        <div id="paymentRefContainer" class="space-y-1 text-xs hidden">
+            <label id="paymentRefLabel" class="block font-bold text-sky-600 dark:text-sky-400 uppercase flex items-center justify-between">
+                <span><i class="fas fa-receipt mr-1"></i> GCash / Maya Reference No.</span>
+                <span class="text-[10px] lowercase font-normal text-slate-400">(optional)</span>
+            </label>
+            <input type="text" id="paymentRefInput" placeholder="e.g. 1002 9384 1928 / Trx ID"
+                class="w-full py-2 px-3 bg-white dark:bg-dark-900 border border-sky-300 dark:border-sky-700 rounded-xl text-slate-900 dark:text-white font-mono text-xs focus:ring-2 focus:ring-sky-500">
+            <p class="text-[10px] text-slate-400">Printed on receipt for audit &amp; customer verification.</p>
         </div>
 
         <!-- Tendered Amount & Presets -->
@@ -439,6 +450,10 @@ function openPaymentModal() {
     modal.classList.remove('hidden');
     modal.classList.add('flex');
 
+    // Reset reference number input
+    const refInput = document.getElementById('paymentRefInput');
+    if (refInput) refInput.value = '';
+
     const totalText = document.getElementById('grandTotalDisplay').innerText.replace(/[^\d.]/g, '');
     document.getElementById('tenderedInput').value = totalText;
     calculateChange();
@@ -453,9 +468,31 @@ function closePaymentModal() {
 function setPaymentMethod(m) {
     currentPaymentMethod = m;
     document.querySelectorAll('.pay-method-btn').forEach(btn => {
-        btn.className = 'pay-method-btn p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 font-bold text-slate-700 dark:text-slate-300 text-center';
+        btn.className = 'pay-method-btn p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 font-bold text-slate-700 dark:text-slate-300 text-center transition-all';
     });
-    event.currentTarget.className = 'pay-method-btn p-2.5 rounded-xl border border-cyan-500 bg-cyan-500/10 font-bold text-cyan-600 dark:text-cyan-400 text-center';
+    event.currentTarget.className = 'pay-method-btn p-2.5 rounded-xl border border-cyan-500 bg-cyan-500/10 font-bold text-cyan-600 dark:text-cyan-400 text-center transition-all';
+
+    const refContainer = document.getElementById('paymentRefContainer');
+    const refLabel = document.getElementById('paymentRefLabel');
+    const refInput = document.getElementById('paymentRefInput');
+
+    if (m === 'Cash') {
+        refContainer.classList.add('hidden');
+    } else {
+        refContainer.classList.remove('hidden');
+        if (m === 'GCash / Maya') {
+            refLabel.innerHTML = '<span><i class="fas fa-mobile-screen mr-1 text-sky-500"></i> GCash / Maya Reference No.</span><span class="text-[10px] lowercase font-normal text-slate-400">(optional)</span>';
+            refInput.placeholder = 'e.g. 1002 9384 1928 / MP-9382';
+        } else if (m === 'Card') {
+            refLabel.innerHTML = '<span><i class="fas fa-credit-card mr-1 text-purple-500"></i> Card Approval / Slip Ref #</span><span class="text-[10px] lowercase font-normal text-slate-400">(optional)</span>';
+            refInput.placeholder = 'e.g. APP-847291';
+        } else {
+            refLabel.innerHTML = '<span><i class="fas fa-building-columns mr-1 text-amber-500"></i> Bank Transfer Ref / Trace #</span><span class="text-[10px] lowercase font-normal text-slate-400">(optional)</span>';
+            refInput.placeholder = 'e.g. BDO-TXN-882194';
+        }
+        // Auto-populate exact amount tendered for digital/electronic payments
+        setTenderExact();
+    }
 }
 
 function setTenderExact() {
@@ -491,6 +528,9 @@ function submitCheckout() {
         return;
     }
 
+    const refInput = document.getElementById('paymentRefInput');
+    const paymentRef = (refInput && !refInput.parentElement.classList.contains('hidden')) ? refInput.value.trim() : null;
+
     const payload = {
         cart: cart,
         order_type: currentOrderType,
@@ -500,6 +540,7 @@ function submitCheckout() {
         installation_fee: (currentOrderType === 'With Installation') ? 300.00 : 0.00,
         discount_amount: parseFloat(document.getElementById('discountInput').value) || 0,
         payment_method: currentPaymentMethod,
+        payment_reference: paymentRef,
         amount_tendered: tendered,
     };
 

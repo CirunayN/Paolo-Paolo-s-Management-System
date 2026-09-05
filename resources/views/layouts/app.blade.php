@@ -205,17 +205,12 @@
                 <span>POS / Cashier Terminal</span>
             </a>
 
-            <a href="{{ route('products.index') }}" class="nav-module-link flex items-center gap-3.5 px-4 py-3 rounded-xl text-base font-semibold transition-all {{ request()->routeIs('products.*') ? 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-dark-800' }}">
-                <i class="fas fa-boxes-stacked w-6 text-center text-lg {{ request()->routeIs('products.*') ? 'text-cyan-500' : 'text-slate-400' }}"></i>
+            <a href="{{ route('products.index') }}" class="nav-module-link flex items-center gap-3.5 px-4 py-3 rounded-xl text-base font-semibold transition-all {{ (request()->routeIs('products.*') || request()->routeIs('inventory.*')) ? 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-dark-800' }}">
+                <i class="fas fa-boxes-stacked w-6 text-center text-lg {{ (request()->routeIs('products.*') || request()->routeIs('inventory.*')) ? 'text-cyan-500' : 'text-slate-400' }}"></i>
                 <span>Inventory</span>
             </a>
 
-            <a href="{{ route('inventory.index') }}" class="nav-module-link flex items-center gap-3.5 px-4 py-3 rounded-xl text-base font-semibold transition-all {{ request()->routeIs('inventory.*') ? 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-dark-800' }}">
-                <i class="fas fa-clipboard-check w-6 text-center text-lg {{ request()->routeIs('inventory.*') ? 'text-cyan-500' : 'text-slate-400' }}"></i>
-                <span>Stock Adjustments &amp; Audit</span>
-            </a>
-
-            <!-- Customer Records (Renamed & accessible by Cashier and Admin) -->
+            <!-- Customer Records (Accessible by Cashier and Admin) -->
             <a href="{{ route('customers.index') }}" class="nav-module-link flex items-center gap-3.5 px-4 py-3 rounded-xl text-base font-semibold transition-all {{ request()->routeIs('customers.*') ? 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-dark-800' }}">
                 <i class="fas fa-id-card w-6 text-center text-lg {{ request()->routeIs('customers.*') ? 'text-cyan-500' : 'text-slate-400' }}"></i>
                 <span>Customer Records</span>
@@ -227,11 +222,6 @@
             <a href="{{ route('stock-in.index') }}" class="nav-module-link flex items-center gap-3.5 px-4 py-3 rounded-xl text-base font-semibold transition-all {{ request()->routeIs('stock-in.*') ? 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-dark-800' }}">
                 <i class="fas fa-truck-loading w-6 text-center text-lg {{ request()->routeIs('stock-in.*') ? 'text-cyan-500' : 'text-slate-400' }}"></i>
                 <span>Stock-In Receiving</span>
-            </a>
-
-            <a href="{{ route('suppliers.index') }}" class="nav-module-link flex items-center gap-3.5 px-4 py-3 rounded-xl text-base font-semibold transition-all {{ request()->routeIs('suppliers.*') ? 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-dark-800' }}">
-                <i class="fas fa-truck-moving w-6 text-center text-lg {{ request()->routeIs('suppliers.*') ? 'text-cyan-500' : 'text-slate-400' }}"></i>
-                <span>Suppliers</span>
             </a>
 
             <a href="{{ route('backup.index') }}" class="nav-module-link flex items-center gap-3.5 px-4 py-3 rounded-xl text-base font-semibold transition-all {{ request()->routeIs('backup.*') ? 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-dark-800' }}">
