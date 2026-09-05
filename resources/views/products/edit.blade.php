@@ -186,16 +186,44 @@
             </div>
             @endif
 
-            <!-- Add New Photos Input -->
-            <div class="pt-2">
-                <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                    Upload Additional Photos:
-                </label>
-                <input type="file" name="images[]" id="newImagesInput" multiple accept="image/*"
-                    class="w-full py-2.5 px-3 bg-white dark:bg-dark-850 border border-dashed border-slate-300 dark:border-slate-700 rounded-xl text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-cyan-500 file:text-white hover:file:bg-cyan-600 cursor-pointer">
-                <p class="text-[11px] text-slate-400 mt-1">
-                    Hold Ctrl (or Cmd) to select multiple photos. JPG, PNG, WEBP up to 5MB each.
-                </p>
+            <!-- Add New Photos Input with Cumulative Multi-Image Support -->
+            <div class="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                        Upload Additional Photos (Add together or one-by-one):
+                    </label>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        Drag &amp; drop or browse photos. You can add photos one at a time or select multiple at once.
+                    </p>
+                </div>
+
+                <!-- Dropzone Area for Additional Photos -->
+                <div id="editDropzone" onclick="document.getElementById('newImagesInput').click()"
+                    class="relative border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-cyan-500 dark:hover:border-cyan-400 bg-white dark:bg-dark-850 rounded-2xl p-5 text-center cursor-pointer transition-all group">
+                    <div class="flex flex-col items-center justify-center space-y-1.5">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-500/10 group-hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 flex items-center justify-center text-lg transition-colors">
+                            <i class="fas fa-cloud-arrow-up"></i>
+                        </div>
+                        <div class="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200">
+                            Click to browse or drag &amp; drop additional photos
+                        </div>
+                        <p class="text-[11px] text-slate-400">
+                            JPG, PNG, WEBP up to 5MB each &bull; Accumulates selections automatically
+                        </p>
+                    </div>
+
+                    <!-- Hidden Native Input connected via DataTransfer -->
+                    <input type="file" name="images[]" id="newImagesInput" multiple accept="image/*" class="hidden">
+                </div>
+
+                <!-- Newly Staged Additional Photos Preview Gallery -->
+                <div id="newStagedGallerySection" class="hidden space-y-2">
+                    <div class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fas fa-circle-check"></i>
+                        <span>New Photos to be Added on Save:</span>
+                    </div>
+                    <div id="newStagedPreviewsContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3.5"></div>
+                </div>
             </div>
         </div>
 
@@ -270,10 +298,22 @@ let targetPath = null;
 const totalInitialImages = {{ count($existingImages) }};
 let removedCount = 0;
 
+// DataTransfer accumulator for new photos in edit mode
+const newStagedDataTransfer = new DataTransfer();
+const fileInput = document.getElementById('newImagesInput');
+const dropzone = document.getElementById('editDropzone');
+const newStagedSection = document.getElementById('newStagedGallerySection');
+const newStagedPreviews = document.getElementById('newStagedPreviewsContainer');
+
 function updateSlotCounter() {
-    const active = Math.max(0, totalInitialImages - removedCount);
+    const activeExisting = Math.max(0, totalInitialImages - removedCount);
+    const newStaged = newStagedDataTransfer.items.length;
+    const totalUsed = activeExisting + newStaged;
+    
     const counterEl = document.getElementById('activePhotoCount');
-    if (counterEl) counterEl.textContent = active;
+    if (counterEl) {
+        counterEl.textContent = totalUsed;
+    }
 }
 
 function openRemoveModal(index, rawPath, assetUrl) {
@@ -326,16 +366,110 @@ function undoRemoval(index) {
     updateSlotCounter();
 }
 
-// Client-side file selection validation to avoid exceeding 5 images
-const fileInput = document.getElementById('newImagesInput');
+// Handle adding new files cumulatively (one-by-one or multiple at once)
+function handleNewFiles(fileList) {
+    const activeExisting = Math.max(0, totalInitialImages - removedCount);
+    let exceededMax = false;
+
+    for (let i = 0; i < fileList.length; i++) {
+        const file = fileList[i];
+        if (!file.type.startsWith('image/')) continue;
+
+        const currentTotal = activeExisting + newStagedDataTransfer.items.length;
+        if (currentTotal < 5) {
+            newStagedDataTransfer.items.add(file);
+        } else {
+            exceededMax = true;
+        }
+    }
+
+    if (exceededMax) {
+        alert('Maximum of 5 photos reached across existing and newly added photos.');
+    }
+
+    fileInput.files = newStagedDataTransfer.files;
+    renderNewStagedGallery();
+    updateSlotCounter();
+}
+
+function removeNewStagedFile(index) {
+    newStagedDataTransfer.items.remove(index);
+    fileInput.files = newStagedDataTransfer.files;
+    renderNewStagedGallery();
+    updateSlotCounter();
+}
+
+function renderNewStagedGallery() {
+    newStagedPreviews.innerHTML = '';
+    const files = newStagedDataTransfer.files;
+
+    if (files.length === 0) {
+        newStagedSection.classList.add('hidden');
+        return;
+    }
+
+    newStagedSection.classList.remove('hidden');
+
+    Array.from(files).forEach((file, index) => {
+        const card = document.createElement('div');
+        card.className = 'group relative rounded-2xl border border-emerald-300 dark:border-emerald-700/60 bg-white dark:bg-dark-800 p-2.5 shadow-sm transition-all';
+
+        const sizeKb = (file.size / 1024).toFixed(0);
+        const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+        const sizeText = file.size > 1024 * 1024 ? `${sizeMb} MB` : `${sizeKb} KB`;
+        const objectUrl = URL.createObjectURL(file);
+
+        card.innerHTML = `
+            <div class="relative w-full aspect-square rounded-xl overflow-hidden bg-slate-100 dark:bg-dark-900 border border-slate-200 dark:border-slate-700">
+                <img src="${objectUrl}" class="w-full h-full object-cover">
+                <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-md bg-emerald-600 text-white text-[10px] font-bold shadow-sm">New</span>
+                <span class="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded bg-black/70 text-white text-[9px] font-mono">${sizeText}</span>
+            </div>
+            <div class="mt-2 flex items-center justify-between gap-1">
+                <span class="text-[11px] font-semibold text-slate-600 dark:text-slate-300 truncate max-w-[80px]" title="${file.name}">${file.name}</span>
+                <button type="button" onclick="removeNewStagedFile(${index})" 
+                    class="p-1 px-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-600 dark:text-rose-400 text-xs font-bold transition-all cursor-pointer" title="Remove photo">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        newStagedPreviews.appendChild(card);
+    });
+}
+
+// File input change listener
 if (fileInput) {
     fileInput.addEventListener('change', function() {
-        const remainingSlots = 5 - (totalInitialImages - removedCount);
-        if (this.files.length > remainingSlots) {
-            alert(`You can only upload up to ${remainingSlots} more photo(s). Currently you selected ${this.files.length} files. Please select fewer files or remove existing ones.`);
-            this.value = '';
+        if (this.files && this.files.length > 0) {
+            handleNewFiles(this.files);
         }
     });
+}
+
+// Drag & Drop listeners for edit dropzone
+if (dropzone) {
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.add('border-cyan-500', 'bg-cyan-500/5');
+        }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.classList.remove('border-cyan-500', 'bg-cyan-500/5');
+        }, false);
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        if (dt && dt.files && dt.files.length > 0) {
+            handleNewFiles(dt.files);
+        }
+    }, false);
 }
 
 // Close modal on escape key or backdrop click
