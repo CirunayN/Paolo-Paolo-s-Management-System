@@ -92,9 +92,69 @@
                 </div>
                 <div class="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 mt-2">
                     <a href="{{ route('inventory.index') }}" class="text-cyan-600 dark:text-cyan-400 font-semibold hover:underline">
-                        View live inventory &rarr;
+                        View stock adjustments &rarr;
                     </a>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- UNIQUE EXECUTIVE FEATURE: Inventory Valuation & Capital Breakdown -->
+    <div class="glass-card rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm bg-gradient-to-r from-slate-50 via-white to-slate-50 dark:from-dark-850 dark:via-dark-800 dark:to-dark-850">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 pb-4 border-b border-slate-200 dark:border-slate-800">
+            <div>
+                <h3 class="text-lg font-bold font-display text-slate-900 dark:text-white flex items-center gap-2.5">
+                    <i class="fas fa-vault text-cyan-500"></i> Inventory Asset Valuation &amp; Capital Reserve
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Real-time monetary valuation of all physical matting &amp; accessories currently sitting in the shop</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('products.index') }}" class="px-3.5 py-1.5 rounded-xl bg-slate-200 dark:bg-dark-700 hover:bg-slate-300 dark:hover:bg-dark-600 text-slate-700 dark:text-slate-200 font-bold text-xs transition-colors">
+                    <i class="fas fa-boxes-stacked mr-1 text-cyan-500"></i> Open Inventory
+                </a>
+                <a href="{{ route('inventory.index') }}" class="px-3.5 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-600 dark:text-cyan-400 font-bold text-xs transition-colors">
+                    <i class="fas fa-clipboard-check mr-1"></i> Stock Adjustments
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <!-- Total Capital Invested (Cost Price Basis) -->
+            <div class="p-4 rounded-xl bg-white dark:bg-dark-900/80 border border-slate-200 dark:border-slate-800">
+                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Capital Invested (Cost)</span>
+                <div class="text-2xl font-black font-display text-slate-900 dark:text-white mt-1.5">
+                    ₱ {{ number_format($totalCostValue, 2) }}
+                </div>
+                <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Wholesale acquisition value</div>
+            </div>
+
+            <!-- Retail Valuation (Gross Potential) -->
+            <div class="p-4 rounded-xl bg-white dark:bg-dark-900/80 border border-slate-200 dark:border-slate-800">
+                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Retail Worth (Gross)</span>
+                <div class="text-2xl font-black font-display text-cyan-600 dark:text-cyan-400 mt-1.5">
+                    ₱ {{ number_format($totalRetailValue, 2) }}
+                </div>
+                <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Gross sales potential</div>
+            </div>
+
+            <!-- Potential Gross Profit -->
+            <div class="p-4 rounded-xl bg-white dark:bg-dark-900/80 border border-slate-200 dark:border-slate-800">
+                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Projected Gross Profit</span>
+                <div class="text-2xl font-black font-display text-emerald-600 dark:text-emerald-400 mt-1.5">
+                    ₱ {{ number_format($potentialProfit, 2) }}
+                </div>
+                <div class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1">
+                    <i class="fas fa-arrow-trend-up mr-0.5"></i> {{ $profitMargin }}% avg profit margin
+                </div>
+            </div>
+
+            <!-- Units on Shelves -->
+            <div class="p-4 rounded-xl bg-white dark:bg-dark-900/80 border border-slate-200 dark:border-slate-800">
+                <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">Units on Shelves</span>
+                <div class="text-2xl font-black font-display text-slate-900 dark:text-white mt-1.5">
+                    {{ number_format($totalUnitsOnHand) }} <span class="text-sm font-normal text-slate-400">units</span>
+                </div>
+                <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Across {{ $totalProducts }} active products</div>
             </div>
         </div>
     </div>
@@ -189,17 +249,30 @@
             </div>
         </div>
 
-        <!-- Stock Status Alert Box (1 Column) -->
+        <!-- Stock Intelligence Alert Box (1 Column) -->
         <div class="glass-card rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold font-display text-slate-900 dark:text-white flex items-center gap-2">
-                        <i class="fas fa-boxes-stacked text-amber-500"></i> Stock Status
+                        <i class="fas fa-boxes-stacked text-cyan-500"></i> Stock Intelligence
                     </h3>
                     <a href="{{ route('inventory.index') }}" class="text-xs font-semibold text-cyan-600 dark:text-cyan-400 hover:underline">Full Inventory &rarr;</a>
                 </div>
 
-                <div class="space-y-3" data-auto-animate>
+                <!-- Tab Buttons -->
+                <div class="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-dark-900 rounded-xl mb-3 text-xs font-bold">
+                    <button type="button" id="tabBtnLow" onclick="switchStockTab('low')"
+                        class="flex-1 py-1.5 px-2.5 rounded-lg transition-all bg-white dark:bg-dark-800 text-amber-600 dark:text-amber-400 shadow-sm">
+                        <i class="fas fa-triangle-exclamation mr-1"></i> Low Stock ({{ $lowStockCount }})
+                    </button>
+                    <button type="button" id="tabBtnDead" onclick="switchStockTab('dead')"
+                        class="flex-1 py-1.5 px-2.5 rounded-lg transition-all text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white">
+                        <i class="fas fa-bed mr-1"></i> Stagnant ({{ $deadStockProducts->count() }})
+                    </button>
+                </div>
+
+                <!-- Tab 1: Low Stock Alert List -->
+                <div id="stockPanelLow" class="space-y-3" data-auto-animate>
                     @forelse($lowStockProducts as $prod)
                     <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-dark-800/60 border border-amber-300 dark:border-amber-500/20 flex items-center justify-between">
                         <div>
@@ -217,6 +290,32 @@
                     <div class="p-8 text-center text-slate-500 text-sm">
                         <i class="fas fa-check-double text-emerald-500 text-3xl mb-2"></i>
                         <div>All physical matting inventory is healthy!</div>
+                    </div>
+                    @endforelse
+                </div>
+
+                <!-- Tab 2: Stagnant / Dead Stock (0 Sales in 30 Days) -->
+                <div id="stockPanelDead" class="space-y-3 hidden" data-auto-animate>
+                    @forelse($deadStockProducts as $prod)
+                    <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-dark-800/60 border border-rose-300/60 dark:border-rose-500/20 flex items-center justify-between">
+                        <div>
+                            <div class="font-bold text-sm text-slate-900 dark:text-white truncate max-w-[160px]">{{ $prod->name }}</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400">{{ $prod->vehicle_model }}</div>
+                            <div class="text-[10px] text-rose-600 dark:text-rose-400 font-semibold mt-0.5">
+                                <i class="fas fa-triangle-exclamation mr-0.5"></i> 0 sold in past 30 days
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="inline-block px-2.5 py-1 rounded text-xs font-extrabold bg-slate-200 dark:bg-dark-700 text-slate-800 dark:text-slate-200">
+                                {{ (float)($prod->inventory->quantity_on_hand ?? 0) }} sitting
+                            </span>
+                            <div class="text-[10px] text-slate-400 mt-0.5">₱ {{ number_format($prod->unit_price, 2) }}</div>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="p-8 text-center text-slate-500 text-sm">
+                        <i class="fas fa-fire-flame-curved text-amber-500 text-3xl mb-2"></i>
+                        <div>No dead stock! All stocked items have active sales demand.</div>
                     </div>
                     @endforelse
                 </div>
@@ -386,5 +485,26 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('resize', () => catChart.resize());
     }
 });
+
+function switchStockTab(tab) {
+    const tabLow = document.getElementById('tabBtnLow');
+    const tabDead = document.getElementById('tabBtnDead');
+    const panelLow = document.getElementById('stockPanelLow');
+    const panelDead = document.getElementById('stockPanelDead');
+
+    if (!tabLow || !tabDead || !panelLow || !panelDead) return;
+
+    if (tab === 'low') {
+        panelLow.classList.remove('hidden');
+        panelDead.classList.add('hidden');
+        tabLow.className = 'flex-1 py-1.5 px-2.5 rounded-lg transition-all bg-white dark:bg-dark-800 text-amber-600 dark:text-amber-400 shadow-sm font-bold';
+        tabDead.className = 'flex-1 py-1.5 px-2.5 rounded-lg transition-all text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold';
+    } else {
+        panelLow.classList.add('hidden');
+        panelDead.classList.remove('hidden');
+        tabDead.className = 'flex-1 py-1.5 px-2.5 rounded-lg transition-all bg-white dark:bg-dark-800 text-rose-600 dark:text-rose-400 shadow-sm font-bold';
+        tabLow.className = 'flex-1 py-1.5 px-2.5 rounded-lg transition-all text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-bold';
+    }
+}
 </script>
 @endpush

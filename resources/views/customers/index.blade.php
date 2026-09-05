@@ -8,9 +8,6 @@
             <h2 class="text-2xl sm:text-3xl font-bold font-display text-slate-900 dark:text-white flex items-center gap-3">
                 <i class="fas fa-id-card text-cyan-500"></i> Customer Records
             </h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                Client directory with vehicle models, plate numbers, and purchase order histories
-            </p>
         </div>
         @if(auth()->user()->isAdmin())
         <button type="button" onclick="openCustomerModal()" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-sm shadow-lg shadow-cyan-500/20 transition-all transform hover:-translate-y-0.5">

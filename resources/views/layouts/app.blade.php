@@ -52,7 +52,7 @@
         }
     </script>
 
-    <!-- AutoAnimate & ECharts -->
+    
     <script src="https://cdn.jsdelivr.net/npm/@formkit/auto-animate@0.8.2/index.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 
@@ -206,13 +206,13 @@
             </a>
 
             <a href="{{ route('products.index') }}" class="nav-module-link flex items-center gap-3.5 px-4 py-3 rounded-xl text-base font-semibold transition-all {{ request()->routeIs('products.*') ? 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-dark-800' }}">
-                <i class="fas fa-layer-group w-6 text-center text-lg {{ request()->routeIs('products.*') ? 'text-cyan-500' : 'text-slate-400' }}"></i>
-                <span>Products &amp; Matting</span>
+                <i class="fas fa-boxes-stacked w-6 text-center text-lg {{ request()->routeIs('products.*') ? 'text-cyan-500' : 'text-slate-400' }}"></i>
+                <span>Inventory</span>
             </a>
 
             <a href="{{ route('inventory.index') }}" class="nav-module-link flex items-center gap-3.5 px-4 py-3 rounded-xl text-base font-semibold transition-all {{ request()->routeIs('inventory.*') ? 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-dark-800' }}">
-                <i class="fas fa-warehouse w-6 text-center text-lg {{ request()->routeIs('inventory.*') ? 'text-cyan-500' : 'text-slate-400' }}"></i>
-                <span>Live Inventory</span>
+                <i class="fas fa-clipboard-check w-6 text-center text-lg {{ request()->routeIs('inventory.*') ? 'text-cyan-500' : 'text-slate-400' }}"></i>
+                <span>Stock Adjustments &amp; Audit</span>
             </a>
 
             <!-- Customer Records (Renamed & accessible by Cashier and Admin) -->

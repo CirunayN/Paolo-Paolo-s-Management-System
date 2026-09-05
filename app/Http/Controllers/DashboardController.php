@@ -74,6 +74,35 @@ class DashboardController extends Controller
             ->orderByDesc('value')
             ->get();
 
+        // Unique Feature: Inventory Asset Valuation (Store Capital tied in Stock)
+        $inventoryStats = DB::table('inventories')
+            ->join('products', 'inventories.product_id', '=', 'products.id')
+            ->select(
+                DB::raw('SUM(inventories.quantity_on_hand * products.cost_price) as total_cost_value'),
+                DB::raw('SUM(inventories.quantity_on_hand * products.unit_price) as total_retail_value'),
+                DB::raw('SUM(inventories.quantity_on_hand) as total_units')
+            )
+            ->first();
+
+        $totalCostValue = (float)($inventoryStats->total_cost_value ?? 0);
+        $totalRetailValue = (float)($inventoryStats->total_retail_value ?? 0);
+        $potentialProfit = $totalRetailValue - $totalCostValue;
+        $profitMargin = $totalRetailValue > 0 ? round(($potentialProfit / $totalRetailValue) * 100, 1) : 0;
+        $totalUnitsOnHand = (float)($inventoryStats->total_units ?? 0);
+
+        // Unique Feature: Stagnant / Dead Stock Detection (Stock > 0 with 0 sales in past 30 days)
+        $activeSoldProductIds = OrderItem::where('created_at', '>=', Carbon::now()->subDays(30))
+            ->distinct()
+            ->pluck('product_id');
+
+        $deadStockProducts = Product::with('inventory')
+            ->whereHas('inventory', function ($q) {
+                $q->where('quantity_on_hand', '>', 0);
+            })
+            ->whereNotIn('id', $activeSoldProductIds)
+            ->take(5)
+            ->get();
+
         return view('dashboard', compact(
             'todaySales',
             'todayOrdersCount',
@@ -86,7 +115,13 @@ class DashboardController extends Controller
             'salesDates',
             'salesAmounts',
             'salesOrders',
-            'categoryBreakdown'
+            'categoryBreakdown',
+            'totalCostValue',
+            'totalRetailValue',
+            'potentialProfit',
+            'profitMargin',
+            'totalUnitsOnHand',
+            'deadStockProducts'
         ));
     }
 }

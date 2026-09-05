@@ -10,7 +10,7 @@
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Update SKU, specs, pricing, and product gallery</p>
         </div>
         <a href="{{ route('products.index') }}" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-dark-800 text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-300 dark:hover:bg-dark-700 transition-colors">
-            <i class="fas fa-arrow-left mr-1.5"></i> Back to Catalog
+            <i class="fas fa-arrow-left mr-1.5"></i> Back to Inventory
         </a>
     </div>
 
@@ -131,7 +131,7 @@
             <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-700 dark:text-slate-300">
                 <input type="checkbox" name="is_active" value="1" {{ $product->is_active ? 'checked' : '' }}
                     class="w-4 h-4 rounded bg-slate-100 dark:bg-dark-900 border-slate-300 dark:border-slate-700 text-cyan-500">
-                <span>Active Product (Visible on POS and Catalog)</span>
+                <span>Active Product (Visible on POS and Inventory)</span>
             </label>
         </div>
 

@@ -2,15 +2,28 @@
 
 @section('content')
 <div class="space-y-6" data-auto-animate>
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h2 class="text-2xl font-bold font-display text-white flex items-center gap-2.5">
-                <i class="fas fa-clock-rotate-left text-cyan-400"></i> Stock Movement Audit Trail
+            <h2 class="text-2xl font-bold font-display text-slate-900 dark:text-white flex items-center gap-2.5">
+                <i class="fas fa-clock-rotate-left text-cyan-500"></i> Stock Movement Audit Trail
             </h2>
-            <p class="text-xs text-slate-400">Chronological history of all stock inflows, sales deductions, and adjustments</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Chronological ledger of stock deliveries, POS sales deductions, and damage/loss adjustments</p>
         </div>
-        <a href="{{ route('inventory.index') }}" class="text-xs text-slate-400 hover:text-white font-medium">
-            &larr; Back to Inventory
+    </div>
+
+    <!-- Inventory Sub-Navigation Tabs -->
+    <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 overflow-x-auto">
+        <a href="{{ route('products.index') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-dark-800 transition-colors">
+            <i class="fas fa-layer-group"></i>
+            <span>Catalog &amp; Specs</span>
+        </a>
+        <a href="{{ route('inventory.index') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-dark-800 transition-colors">
+            <i class="fas fa-clipboard-check"></i>
+            <span>Stock Levels &amp; Discrepancies</span>
+        </a>
+        <a href="{{ route('inventory.transactions') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-cyan-500 text-white shadow-sm shadow-cyan-500/30">
+            <i class="fas fa-clock-rotate-left"></i>
+            <span>Stock Audit Trail</span>
         </a>
     </div>
 

@@ -6,17 +6,35 @@
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h2 class="text-2xl sm:text-3xl font-bold font-display text-slate-900 dark:text-white flex items-center gap-3">
-                <i class="fas fa-layer-group text-cyan-500"></i> Products &amp; Matting Catalog
+                <i class="fas fa-boxes-stacked text-cyan-500"></i> Inventory
             </h2>
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Physical floor matting, trunk trays, and automotive accessories</p>
         </div>
 
-        @if(auth()->user()->isAdmin())
-        <a href="{{ route('products.create') }}" class="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-sm shadow-lg shadow-cyan-500/20 transition-all transform hover:-translate-y-0.5">
-            <i class="fas fa-plus"></i>
-            <span>Add New Product</span>
+        <div class="flex items-center gap-2.5">
+            @if(auth()->user()->isAdmin())
+            <a href="{{ route('products.create') }}" class="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-sm shadow-lg shadow-cyan-500/20 transition-all transform hover:-translate-y-0.5">
+                <i class="fas fa-plus"></i>
+                <span>Add New Product</span>
+            </a>
+            @endif
+        </div>
+    </div>
+
+    <!-- Inventory Sub-Navigation Tabs -->
+    <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 overflow-x-auto">
+        <a href="{{ route('products.index') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-cyan-500 text-white shadow-sm shadow-cyan-500/30">
+            <i class="fas fa-layer-group"></i>
+            <span>Catalog &amp; Specs</span>
         </a>
-        @endif
+        <a href="{{ route('inventory.index') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-dark-800 transition-colors">
+            <i class="fas fa-clipboard-check"></i>
+            <span>Stock Levels &amp; Discrepancies</span>
+        </a>
+        <a href="{{ route('inventory.transactions') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-dark-800 transition-colors">
+            <i class="fas fa-clock-rotate-left"></i>
+            <span>Stock Audit Trail</span>
+        </a>
     </div>
 
     <!-- Filters & Search -->

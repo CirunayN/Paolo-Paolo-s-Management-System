@@ -5,19 +5,32 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h2 class="text-2xl font-bold font-display text-white flex items-center gap-2.5">
-                <i class="fas fa-warehouse text-cyan-400"></i> Inventory &amp; Live Stock Control
+            <h2 class="text-2xl font-bold font-display text-slate-900 dark:text-white flex items-center gap-2.5">
+                <i class="fas fa-clipboard-check text-cyan-500"></i> Stock Adjustments &amp; Discrepancies
             </h2>
-            <p class="text-xs text-slate-400">Real-time automotive matting inventory on hand and reorder threshold alerts</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Audit physical counts, record damage/loss write-offs, and monitor reorder levels</p>
         </div>
         <div class="flex items-center gap-3">
-            <a href="{{ route('inventory.transactions') }}" class="px-4 py-2 rounded-xl bg-dark-750 hover:bg-dark-700 border border-slate-700 text-slate-300 text-xs font-semibold transition-colors">
-                <i class="fas fa-clock-rotate-left mr-1.5 text-cyan-400"></i> Stock Audit Trail
-            </a>
-            <a href="{{ route('stock-in.create') }}" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-bold shadow-lg shadow-cyan-500/20 transition-all">
+            <a href="{{ route('stock-in.create') }}" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold shadow-lg shadow-cyan-500/20 transition-all">
                 <i class="fas fa-truck-loading mr-1.5"></i> Receive Delivery
             </a>
         </div>
+    </div>
+
+    <!-- Inventory Sub-Navigation Tabs -->
+    <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 overflow-x-auto">
+        <a href="{{ route('products.index') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-dark-800 transition-colors">
+            <i class="fas fa-layer-group"></i>
+            <span>Catalog &amp; Specs</span>
+        </a>
+        <a href="{{ route('inventory.index') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-cyan-500 text-white shadow-sm shadow-cyan-500/30">
+            <i class="fas fa-clipboard-check"></i>
+            <span>Stock Levels &amp; Discrepancies</span>
+        </a>
+        <a href="{{ route('inventory.transactions') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-dark-800 transition-colors">
+            <i class="fas fa-clock-rotate-left"></i>
+            <span>Stock Audit Trail</span>
+        </a>
     </div>
 
     <!-- Quick Status Cards -->

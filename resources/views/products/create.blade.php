@@ -10,7 +10,7 @@
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Physical floor matting, trunk liners, or accessories</p>
         </div>
         <a href="{{ route('products.index') }}" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-dark-800 text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-300 dark:hover:bg-dark-700 transition-colors">
-            <i class="fas fa-arrow-left mr-1.5"></i> Back to Catalog
+            <i class="fas fa-arrow-left mr-1.5"></i> Back to Inventory
         </a>
     </div>
 
