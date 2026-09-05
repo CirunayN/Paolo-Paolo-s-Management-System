@@ -9,6 +9,7 @@ use App\Models\StockIn;
 use App\Models\StockInItem;
 use App\Models\Supplier;
 use App\Models\Product;
+use App\Models\Category;
 use App\Models\Inventory;
 use App\Models\StockTransaction;
 
@@ -27,6 +28,8 @@ class StockInController extends Controller
     public function create()
     {
         $products = Product::with('inventory')->where('is_active', true)->orderBy('name')->get();
+        $categories = Category::orderBy('name')->get();
+        $vehicleBrands = Product::whereNotNull('vehicle_brand')->where('vehicle_brand', '!=', '')->distinct()->pluck('vehicle_brand');
         $recentSources = StockIn::whereNotNull('source')->distinct()->pluck('source');
 
         // Generate auto reference number: STK-YYYYMMDD-XXXX
@@ -35,7 +38,7 @@ class StockInController extends Controller
         $seq = $latest ? (intval(substr($latest->reference_no, -4)) + 1) : 1;
         $autoRef = 'STK-' . $datePrefix . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
 
-        return view('stock_in.create', compact('products', 'recentSources', 'autoRef'));
+        return view('stock_in.create', compact('products', 'categories', 'vehicleBrands', 'recentSources', 'autoRef'));
     }
 
     public function store(Request $request)

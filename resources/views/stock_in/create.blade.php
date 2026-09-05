@@ -69,16 +69,26 @@
         <div class="space-y-3">
             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                 <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Items Received in this Shipment</span>
-                <button type="button" onclick="addItemRow()" class="px-3 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500 hover:text-white border border-cyan-500/40 text-xs font-semibold transition-all">
-                    <i class="fas fa-plus mr-1"></i> Add Another Item
-                </button>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="openQuickAddModal()" class="px-3 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500 hover:text-white border border-emerald-500/40 text-xs font-semibold transition-all shadow-sm">
+                        <i class="fas fa-magic mr-1"></i> + Quick-Add New Product
+                    </button>
+                    <button type="button" onclick="addItemRow()" class="px-3 py-1 rounded-lg bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500 hover:text-white border border-cyan-500/40 text-xs font-semibold transition-all">
+                        <i class="fas fa-plus mr-1"></i> Add Another Item
+                    </button>
+                </div>
             </div>
 
             <div id="itemsContainer" class="space-y-2.5" data-auto-animate>
                 <!-- Initial Row -->
                 <div class="item-row p-3 rounded-xl bg-dark-850/80 border border-slate-700/80 grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center text-xs">
                     <div class="sm:col-span-6">
-                        <label class="block text-[10px] text-slate-400 mb-1">Product</label>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-[10px] text-slate-400">Product</label>
+                            <button type="button" onclick="openQuickAddModal(this)" class="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 hover:underline flex items-center gap-1">
+                                <i class="fas fa-plus-circle"></i> New Product?
+                            </button>
+                        </div>
                         <select name="items[0][product_id]" required onchange="onProductSelect(this, 0)"
                             class="w-full py-1.5 px-2 bg-dark-900 border border-slate-700 rounded-lg text-white text-xs focus:ring-1 focus:ring-cyan-500">
                             <option value="">Select product to restock...</option>
@@ -161,7 +171,12 @@ function addItemRow() {
     row.className = 'item-row p-3 rounded-xl bg-dark-850/80 border border-slate-700/80 grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center text-xs';
     row.innerHTML = `
         <div class="sm:col-span-6">
-            <label class="block text-[10px] text-slate-400 mb-1">Product</label>
+            <div class="flex items-center justify-between mb-1">
+                <label class="block text-[10px] text-slate-400">Product</label>
+                <button type="button" onclick="openQuickAddModal(this)" class="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 hover:underline flex items-center gap-1">
+                    <i class="fas fa-plus-circle"></i> New Product?
+                </button>
+            </div>
             <select name="items[${rowIndex}][product_id]" required onchange="onProductSelect(this, ${rowIndex})"
                 class="w-full py-1.5 px-2 bg-dark-900 border border-slate-700 rounded-lg text-white text-xs focus:ring-1 focus:ring-cyan-500">
                 ${options}
@@ -225,8 +240,254 @@ function calculateRowTotal() {
     document.getElementById('grandShipmentTotal').innerText = '₱ ' + grandTotal.toLocaleString('en-US', {minimumFractionDigits: 2});
 }
 
+// Quick-Add Product Modal Logic
+let activeRowForQuickProduct = null;
+
+function openQuickAddModal(targetEl = null) {
+    if (targetEl) {
+        activeRowForQuickProduct = targetEl.closest('.item-row');
+    } else {
+        const rows = document.querySelectorAll('.item-row');
+        activeRowForQuickProduct = rows[rows.length - 1];
+    }
+
+    document.getElementById('quickProductForm').reset();
+    const errBox = document.getElementById('quickModalError');
+    errBox.classList.add('hidden');
+    errBox.innerHTML = '';
+
+    const modal = document.getElementById('quickProductModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    setTimeout(() => {
+        const nameInput = document.getElementById('quickName');
+        if (nameInput) nameInput.focus();
+    }, 150);
+}
+
+function closeQuickAddModal() {
+    const modal = document.getElementById('quickProductModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+function submitQuickProduct(e) {
+    e.preventDefault();
+    const btn = document.getElementById('quickSubmitBtn');
+    const originalContent = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving to Catalog...';
+
+    const errBox = document.getElementById('quickModalError');
+    errBox.classList.add('hidden');
+
+    const payload = {
+        name: document.getElementById('quickName').value.trim(),
+        category_id: document.getElementById('quickCategory').value,
+        unit_of_measure: document.getElementById('quickUnit').value,
+        vehicle_brand: document.getElementById('quickBrand').value.trim() || 'Universal',
+        vehicle_model: document.getElementById('quickModel').value.trim() || 'Universal',
+        cost_price: parseFloat(document.getElementById('quickCost').value) || 0,
+        unit_price: parseFloat(document.getElementById('quickPrice').value) || 0,
+        product_code: document.getElementById('quickCode').value.trim() || null,
+    };
+
+    fetch("{{ route('products.quick-store') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(res => res.json().then(data => ({ status: res.status, data })))
+    .then(({ status, data }) => {
+        btn.disabled = false;
+        btn.innerHTML = originalContent;
+
+        if (status !== 200 || !data.success) {
+            let msg = data.message || 'Error registering product.';
+            if (data.errors) {
+                msg = Object.values(data.errors).flat().join('<br>');
+            }
+            errBox.innerHTML = msg;
+            errBox.classList.remove('hidden');
+            return;
+        }
+
+        const p = data.product;
+
+        // 1. Build new option tag
+        const newOptionHtml = `<option value="${p.id}" data-cost="${p.cost_price}" data-stock="0" data-unit="${p.unit_of_measure}">${p.name} [${p.product_code}] (Current Stock: 0 ${p.unit_of_measure})</option>`;
+
+        // 2. Append to template string #productOptionsHtml for future added rows
+        document.getElementById('productOptionsHtml').insertAdjacentHTML('beforeend', newOptionHtml);
+
+        // 3. Append to all existing select dropdowns in current rows
+        document.querySelectorAll('.item-row select').forEach(select => {
+            select.insertAdjacentHTML('beforeend', newOptionHtml);
+        });
+
+        // 4. Pre-select in the active row and auto-populate cost
+        if (activeRowForQuickProduct) {
+            const selectEl = activeRowForQuickProduct.querySelector('select');
+            if (selectEl) {
+                selectEl.value = p.id;
+                onProductSelect(selectEl);
+            }
+            const qtyInput = activeRowForQuickProduct.querySelector('.row-qty');
+            if (qtyInput) {
+                setTimeout(() => {
+                    qtyInput.focus();
+                    qtyInput.select();
+                }, 150);
+            }
+        }
+
+        closeQuickAddModal();
+    })
+    .catch(err => {
+        btn.disabled = false;
+        btn.innerHTML = originalContent;
+        errBox.innerText = 'Network connection issue. Please check details and try again.';
+        errBox.classList.remove('hidden');
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     calculateRowTotal();
 });
 </script>
+
+<!-- MODAL: Quick-Add New Product On-The-Fly -->
+<div id="quickProductModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="w-full max-w-lg bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-2xl space-y-4">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div class="flex items-center gap-2.5">
+                <span class="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-base">
+                    <i class="fas fa-box-open"></i>
+                </span>
+                <div>
+                    <h3 class="text-base font-bold font-display text-slate-900 dark:text-white">Quick-Register New Product</h3>
+                    <p class="text-[11px] text-slate-400">Registers into catalog &amp; automatically selects in current shipment</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeQuickAddModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 flex items-center justify-center text-lg">&times;</button>
+        </div>
+
+        <!-- Alert Error Banner -->
+        <div id="quickModalError" class="hidden p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs"></div>
+
+        <!-- Quick Form -->
+        <form id="quickProductForm" onsubmit="submitQuickProduct(event)" class="space-y-3.5 text-xs">
+            <!-- Product Name -->
+            <div>
+                <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Product Name <span class="text-rose-500">*</span></label>
+                <input type="text" id="quickName" required placeholder="e.g. Toyota Yaris Cross 2024 Deep Dish Matting"
+                    class="w-full py-2 px-3 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500">
+            </div>
+
+            <!-- Category & Unit of Measure -->
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Category <span class="text-rose-500">*</span></label>
+                    <select id="quickCategory" required
+                        class="w-full py-2 px-3 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500">
+                        <option value="">Select Category...</option>
+                        @foreach($categories as $cat)
+                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Unit of Measure</label>
+                    <select id="quickUnit"
+                        class="w-full py-2 px-3 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500">
+                        <option value="Set">Set (Car Matting Set)</option>
+                        <option value="Piece">Piece (Single accessory/trim)</option>
+                        <option value="Roll">Roll</option>
+                        <option value="Box">Box</option>
+                        <option value="Pair">Pair</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Vehicle Brand & Model -->
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Vehicle Make / Brand</label>
+                    <input type="text" id="quickBrand" list="vehicleBrandSuggestions" placeholder="e.g. Toyota, Mitsubishi, Universal"
+                        class="w-full py-2 px-3 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500">
+                    <datalist id="vehicleBrandSuggestions">
+                        <option value="Universal">
+                        <option value="Toyota">
+                        <option value="Mitsubishi">
+                        <option value="Ford">
+                        <option value="Honda">
+                        <option value="Nissan">
+                        <option value="Hyundai">
+                        <option value="Suzuki">
+                        <option value="Isuzu">
+                        <option value="Kia">
+                        <option value="Geely">
+                        <option value="BYD">
+                        <option value="MG">
+                        @foreach($vehicleBrands as $vb)
+                        <option value="{{ $vb }}">
+                        @endforeach
+                    </datalist>
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Vehicle Model / Year</label>
+                    <input type="text" id="quickModel" placeholder="e.g. Yaris Cross 2024, Hilux, Universal"
+                        class="w-full py-2 px-3 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500">
+                </div>
+            </div>
+
+            <!-- Cost Price & Selling Price -->
+            <div class="grid grid-cols-2 gap-3 p-3 rounded-2xl bg-cyan-50 dark:bg-cyan-950/30 border border-cyan-200 dark:border-cyan-800/50">
+                <div>
+                    <label class="block font-bold text-cyan-800 dark:text-cyan-300 uppercase mb-1">
+                        Supplier Cost (₱) <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="number" id="quickCost" step="0.01" min="0" required placeholder="0.00"
+                        class="w-full py-2 px-3 bg-white dark:bg-dark-900 border border-cyan-300 dark:border-cyan-700 rounded-xl text-slate-900 dark:text-white font-mono font-bold focus:ring-2 focus:ring-cyan-500">
+                    <span class="text-[10px] text-slate-400">Auto-fills in this shipment row</span>
+                </div>
+                <div>
+                    <label class="block font-bold text-cyan-800 dark:text-cyan-300 uppercase mb-1">
+                        Selling Price (₱) <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="number" id="quickPrice" step="0.01" min="0" required placeholder="0.00"
+                        class="w-full py-2 px-3 bg-white dark:bg-dark-900 border border-cyan-300 dark:border-cyan-700 rounded-xl text-slate-900 dark:text-white font-mono font-bold focus:ring-2 focus:ring-cyan-500">
+                    <span class="text-[10px] text-slate-400">POS checkout price</span>
+                </div>
+            </div>
+
+            <!-- Optional Product Code -->
+            <div>
+                <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase mb-1 flex items-center justify-between">
+                    <span>Product Code / SKU</span>
+                    <span class="text-[10px] lowercase font-normal text-slate-400">(Leave blank to auto-generate)</span>
+                </label>
+                <input type="text" id="quickCode" placeholder="Auto-generated e.g. MAT-X7812"
+                    class="w-full py-2 px-3 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-xs uppercase focus:ring-2 focus:ring-cyan-500">
+            </div>
+
+            <!-- Modal Action Buttons -->
+            <div class="pt-2 flex items-center justify-end gap-2.5 border-t border-slate-200 dark:border-slate-800">
+                <button type="button" onclick="closeQuickAddModal()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-dark-800 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-300 transition-colors">
+                    Cancel
+                </button>
+                <button type="submit" id="quickSubmitBtn"
+                    class="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Register &amp; Add to Shipment</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection

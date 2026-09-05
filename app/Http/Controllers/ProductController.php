@@ -129,6 +129,68 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with('success', "Product '{$product->name}' created successfully!");
     }
 
+    public function quickStore(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:150',
+            'category_id' => 'required|exists:categories,id',
+            'product_code' => 'nullable|string|max:50|unique:products,product_code',
+            'vehicle_brand' => 'nullable|string|max:50',
+            'vehicle_model' => 'nullable|string|max:100',
+            'unit_of_measure' => 'nullable|string|max:20',
+            'cost_price' => 'required|numeric|min:0',
+            'unit_price' => 'required|numeric|min:0',
+            'stock_alert_level' => 'nullable|integer|min:0',
+        ]);
+
+        $code = $validated['product_code'] ?? null;
+        if (empty($code)) {
+            $cat = Category::find($validated['category_id']);
+            $catPrefix = $cat ? strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $cat->name), 0, 3)) : 'PRD';
+            do {
+                $code = $catPrefix . '-' . strtoupper(Str::random(5));
+            } while (Product::where('product_code', $code)->exists());
+        } else {
+            $code = strtoupper($code);
+        }
+
+        $product = Product::create([
+            'product_code' => $code,
+            'name' => $validated['name'],
+            'category_id' => $validated['category_id'],
+            'vehicle_brand' => !empty($validated['vehicle_brand']) ? $validated['vehicle_brand'] : 'Universal',
+            'vehicle_model' => !empty($validated['vehicle_model']) ? $validated['vehicle_model'] : 'Universal',
+            'unit_of_measure' => !empty($validated['unit_of_measure']) ? $validated['unit_of_measure'] : 'Set',
+            'cost_price' => floatval($validated['cost_price']),
+            'unit_price' => floatval($validated['unit_price']),
+            'stock_alert_level' => intval($validated['stock_alert_level'] ?? 5),
+            'is_active' => true,
+        ]);
+
+        Inventory::create([
+            'product_id' => $product->id,
+            'quantity_on_hand' => 0,
+            'reorder_level' => $product->stock_alert_level,
+            'last_restocked_at' => null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Product '{$product->name}' registered successfully!",
+            'product' => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'product_code' => $product->product_code,
+                'vehicle_brand' => $product->vehicle_brand,
+                'vehicle_model' => $product->vehicle_model,
+                'cost_price' => (float)$product->cost_price,
+                'unit_price' => (float)$product->unit_price,
+                'unit_of_measure' => $product->unit_of_measure,
+                'current_stock' => 0,
+            ]
+        ]);
+    }
+
     public function edit(Product $product)
     {
         $categories = Category::orderBy('name')->get();

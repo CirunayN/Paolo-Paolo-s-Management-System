@@ -48,9 +48,10 @@ Route::middleware(['auth'])->group(function () {
     // ADMIN ONLY ROUTES (Cashiers Restricted)
     // =========================================================================
     Route::middleware([AdminMiddleware::class])->group(function () {
-        // Product Management (Create / Edit / Delete)
+        // Product Management (Create / Edit / Delete / Quick Store)
         Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
         Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+        Route::post('/products/quick-store', [ProductController::class, 'quickStore'])->name('products.quick-store');
         Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
         Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
         Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
