@@ -355,6 +355,77 @@ function submitQuickProduct(e) {
     });
 }
 
+// Category Quick-Add Modal
+function openNewCategoryModal() {
+    document.getElementById('newCategoryForm').reset();
+    const errBox = document.getElementById('categoryModalError');
+    errBox.classList.add('hidden');
+    errBox.innerHTML = '';
+    const modal = document.getElementById('newCategoryModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    setTimeout(() => document.getElementById('newCatName').focus(), 150);
+}
+
+function closeNewCategoryModal() {
+    const modal = document.getElementById('newCategoryModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+function submitNewCategory(e) {
+    e.preventDefault();
+    const btn = document.getElementById('newCatSubmitBtn');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+    const errBox = document.getElementById('categoryModalError');
+    errBox.classList.add('hidden');
+
+    const nameVal = document.getElementById('newCatName').value.trim();
+    const descVal = document.getElementById('newCatDesc').value.trim();
+
+    fetch("{{ route('categories.quick-store') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ name: nameVal, description: descVal })
+    })
+    .then(res => res.json().then(data => ({ status: res.status, data })))
+    .then(({ status, data }) => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+
+        if (status !== 200 || !data.success) {
+            let msg = data.message || 'Error creating category.';
+            if (data.errors) {
+                msg = Object.values(data.errors).flat().join('<br>');
+            }
+            errBox.innerHTML = msg;
+            errBox.classList.remove('hidden');
+            return;
+        }
+
+        const cat = data.category;
+        const select = document.getElementById('quickCategory');
+        if (select) {
+            const opt = new Option(cat.name, cat.id, true, true);
+            select.add(opt);
+        }
+        closeNewCategoryModal();
+    })
+    .catch(err => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        errBox.innerText = 'Connection error. Please try again.';
+        errBox.classList.remove('hidden');
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     calculateRowTotal();
 });
@@ -392,7 +463,12 @@ document.addEventListener('DOMContentLoaded', () => {
             <!-- Category & Unit of Measure -->
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Category <span class="text-rose-500">*</span></label>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase">Category <span class="text-rose-500">*</span></label>
+                        <button type="button" onclick="openNewCategoryModal()" class="text-[10px] font-bold text-cyan-400 hover:underline">
+                            + New Category
+                        </button>
+                    </div>
                     <select id="quickCategory" required
                         class="w-full py-2 px-3 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500">
                         <option value="">Select Category...</option>
@@ -403,14 +479,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div>
                     <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Unit of Measure</label>
-                    <select id="quickUnit"
+                    <input type="text" id="quickUnit" list="quickUnitList" value="Set" placeholder="e.g. Set, Pc, Roll, Box..."
                         class="w-full py-2 px-3 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500">
-                        <option value="Set">Set (Car Matting Set)</option>
-                        <option value="Piece">Piece (Single accessory/trim)</option>
-                        <option value="Roll">Roll</option>
-                        <option value="Box">Box</option>
-                        <option value="Pair">Pair</option>
-                    </select>
+                    <datalist id="quickUnitList">
+                        <option value="Set">
+                        <option value="Piece">
+                        <option value="Pair">
+                        <option value="Roll">
+                        <option value="Box">
+                        <option value="Kit">
+                        <option value="Meter">
+                        <option value="Bottle">
+                        <option value="Can">
+                    </datalist>
                 </div>
             </div>
 
@@ -485,6 +566,46 @@ document.addEventListener('DOMContentLoaded', () => {
                     class="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-2">
                     <i class="fas fa-check-circle"></i>
                     <span>Register &amp; Add to Shipment</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL: Quick Add Category -->
+<div id="newCategoryModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-2xl space-y-4 animate-fade-in">
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-500 flex items-center justify-center text-sm">
+                    <i class="fas fa-tags"></i>
+                </span>
+                <h3 class="text-base font-bold font-display text-slate-900 dark:text-white">Create New Category</h3>
+            </div>
+            <button type="button" onclick="closeNewCategoryModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg flex items-center justify-center">&times;</button>
+        </div>
+
+        <div id="categoryModalError" class="hidden p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs"></div>
+
+        <form id="newCategoryForm" onsubmit="submitNewCategory(event)" class="space-y-4 text-xs">
+            <div>
+                <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Category Name <span class="text-rose-500">*</span></label>
+                <input type="text" id="newCatName" required placeholder="e.g. LED Lighting &amp; Bulbs, Dashcams"
+                    class="w-full py-2.5 px-3 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500 text-sm">
+            </div>
+            <div>
+                <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Short Description (Optional)</label>
+                <input type="text" id="newCatDesc" placeholder="e.g. Headlights, fog lamps, ambient lighting"
+                    class="w-full py-2 px-3 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500 text-xs">
+            </div>
+
+            <div class="pt-2 flex items-center justify-end gap-2.5 border-t border-slate-200 dark:border-slate-800">
+                <button type="button" onclick="closeNewCategoryModal()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-dark-800 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-300 transition-colors">
+                    Cancel
+                </button>
+                <button type="submit" id="newCatSubmitBtn"
+                    class="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold shadow-lg shadow-cyan-500/20 transition-all">
+                    Save Category
                 </button>
             </div>
         </form>

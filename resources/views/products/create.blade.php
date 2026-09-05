@@ -7,7 +7,6 @@
             <h2 class="text-2xl sm:text-3xl font-bold font-display text-slate-900 dark:text-white flex items-center gap-3">
                 <i class="fas fa-plus-circle text-cyan-500"></i> Add New Product
             </h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Physical floor matting, trunk liners, or accessories</p>
         </div>
         <a href="{{ route('products.index') }}" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-dark-800 text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-300 dark:hover:bg-dark-700 transition-colors">
             <i class="fas fa-arrow-left mr-1.5"></i> Back to Inventory
@@ -40,10 +39,15 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
             <!-- Category -->
             <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                    Category <span class="text-rose-500">*</span>
-                </label>
-                <select name="category_id" required class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                <div class="flex items-center justify-between mb-1.5">
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                        Category <span class="text-rose-500">*</span>
+                    </label>
+                    <button type="button" onclick="openNewCategoryModal()" class="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1">
+                        <i class="fas fa-plus-circle"></i> + New Category
+                    </button>
+                </div>
+                <select name="category_id" id="categorySelect" required class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
                     <option value="">Select Category</option>
                     @foreach($categories as $cat)
                     <option value="{{ $cat->id }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>
@@ -56,8 +60,35 @@
             <!-- Vehicle Brand -->
             <div>
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Vehicle Brand</label>
-                <input type="text" name="vehicle_brand" value="{{ old('vehicle_brand', 'Toyota') }}" placeholder="e.g. Toyota, Mitsubishi, Ford, Universal"
+                <input type="text" name="vehicle_brand" list="vehicleBrandSuggestions" value="{{ old('vehicle_brand', 'Toyota') }}" placeholder="e.g. Toyota, Mitsubishi, Ford, Universal"
                     class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                <datalist id="vehicleBrandSuggestions">
+                    <option value="Universal">
+                    <option value="Toyota">
+                    <option value="Mitsubishi">
+                    <option value="Ford">
+                    <option value="Honda">
+                    <option value="Nissan">
+                    <option value="Isuzu">
+                    <option value="Suzuki">
+                    <option value="Hyundai">
+                    <option value="Kia">
+                    <option value="BYD">
+                    <option value="Geely">
+                    <option value="MG">
+                    <option value="Chery">
+                    <option value="GAC">
+                    <option value="Changan">
+                    <option value="Jetour">
+                    <option value="Lexus">
+                    <option value="Subaru">
+                    <option value="Mazda">
+                    @if(isset($brands))
+                    @foreach($brands as $brand)
+                    <option value="{{ $brand }}">
+                    @endforeach
+                    @endif
+                </datalist>
             </div>
 
             <!-- Vehicle Model / Year -->
@@ -81,12 +112,20 @@
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                     Unit of Measure <span class="text-rose-500">*</span>
                 </label>
-                <select name="unit_of_measure" required class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
-                    <option value="Set" selected>Set (Front + Rear Cabin)</option>
-                    <option value="Pc">Pc (Single Piece / Mat)</option>
-                    <option value="Roll">Roll (Coil / Noodle Matting)</option>
-                    <option value="Pair">Pair (Front Mats Only)</option>
-                </select>
+                <input type="text" name="unit_of_measure" list="unitOfMeasureList" value="{{ old('unit_of_measure', 'Set') }}" required placeholder="e.g. Set, Pc, Roll, Box, Pair..."
+                    class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                <datalist id="unitOfMeasureList">
+                    <option value="Set">
+                    <option value="Pc">
+                    <option value="Pair">
+                    <option value="Roll">
+                    <option value="Box">
+                    <option value="Kit">
+                    <option value="Meter">
+                    <option value="Bottle">
+                    <option value="Can">
+                    <option value="Pack">
+                </datalist>
             </div>
 
             <!-- Stock Alert Level -->
@@ -302,5 +341,114 @@ dropzone.addEventListener('drop', (e) => {
         handleNewFiles(dt.files);
     }
 }, false);
+
+// Category Quick-Add Modal
+function openNewCategoryModal() {
+    document.getElementById('newCategoryForm').reset();
+    const errBox = document.getElementById('categoryModalError');
+    errBox.classList.add('hidden');
+    errBox.innerHTML = '';
+    const modal = document.getElementById('newCategoryModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    setTimeout(() => document.getElementById('newCatName').focus(), 150);
+}
+
+function closeNewCategoryModal() {
+    const modal = document.getElementById('newCategoryModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+function submitNewCategory(e) {
+    e.preventDefault();
+    const btn = document.getElementById('newCatSubmitBtn');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+    const errBox = document.getElementById('categoryModalError');
+    errBox.classList.add('hidden');
+
+    const nameVal = document.getElementById('newCatName').value.trim();
+    const descVal = document.getElementById('newCatDesc').value.trim();
+
+    fetch("{{ route('categories.quick-store') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ name: nameVal, description: descVal })
+    })
+    .then(res => res.json().then(data => ({ status: res.status, data })))
+    .then(({ status, data }) => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+
+        if (status !== 200 || !data.success) {
+            let msg = data.message || 'Error creating category.';
+            if (data.errors) {
+                msg = Object.values(data.errors).flat().join('<br>');
+            }
+            errBox.innerHTML = msg;
+            errBox.classList.remove('hidden');
+            return;
+        }
+
+        const cat = data.category;
+        const select = document.getElementById('categorySelect');
+        const opt = new Option(cat.name, cat.id, true, true);
+        select.add(opt);
+        closeNewCategoryModal();
+    })
+    .catch(err => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        errBox.innerText = 'Connection error. Please try again.';
+        errBox.classList.remove('hidden');
+    });
+}
 </script>
+
+<!-- MODAL: Quick Add Category -->
+<div id="newCategoryModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-2xl space-y-4 animate-fade-in">
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-500 flex items-center justify-center text-sm">
+                    <i class="fas fa-tags"></i>
+                </span>
+                <h3 class="text-base font-bold font-display text-slate-900 dark:text-white">Create New Category</h3>
+            </div>
+            <button type="button" onclick="closeNewCategoryModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg flex items-center justify-center">&times;</button>
+        </div>
+
+        <div id="categoryModalError" class="hidden p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs"></div>
+
+        <form id="newCategoryForm" onsubmit="submitNewCategory(event)" class="space-y-4 text-xs">
+            <div>
+                <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Category Name <span class="text-rose-500">*</span></label>
+                <input type="text" id="newCatName" required placeholder="e.g. LED Lighting &amp; Bulbs, Dashcams"
+                    class="w-full py-2.5 px-3 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500 text-sm">
+            </div>
+            <div>
+                <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Short Description (Optional)</label>
+                <input type="text" id="newCatDesc" placeholder="e.g. Headlights, fog lamps, ambient lighting"
+                    class="w-full py-2 px-3 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500 text-xs">
+            </div>
+
+            <div class="pt-2 flex items-center justify-end gap-2.5 border-t border-slate-200 dark:border-slate-800">
+                <button type="button" onclick="closeNewCategoryModal()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-dark-800 text-slate-700 dark:text-slate-300 font-semibold hover:bg-slate-300 transition-colors">
+                    Cancel
+                </button>
+                <button type="submit" id="newCatSubmitBtn"
+                    class="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold shadow-lg shadow-cyan-500/20 transition-all">
+                    Save Category
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection

@@ -8,6 +8,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\StockInController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
@@ -48,10 +49,11 @@ Route::middleware(['auth'])->group(function () {
     // ADMIN ONLY ROUTES (Cashiers Restricted)
     // =========================================================================
     Route::middleware([AdminMiddleware::class])->group(function () {
-        // Product Management (Create / Edit / Delete / Quick Store)
+        // Product & Category Management (Create / Edit / Delete / Quick Store)
         Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
         Route::post('/products', [ProductController::class, 'store'])->name('products.store');
         Route::post('/products/quick-store', [ProductController::class, 'quickStore'])->name('products.quick-store');
+        Route::post('/categories/quick-store', [CategoryController::class, 'quickStore'])->name('categories.quick-store');
         Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
         Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
         Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');

@@ -7,7 +7,6 @@
             <h2 class="text-2xl font-bold font-display text-white flex items-center gap-2.5">
                 <i class="fas fa-user-shield text-cyan-400"></i> Staff &amp; User Management
             </h2>
-            <p class="text-xs text-slate-400">Manage administrator and cashier terminal user accounts</p>
         </div>
         <button type="button" onclick="openUserModal()" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-xs shadow-lg shadow-cyan-500/20 transition-all">
             <i class="fas fa-user-plus"></i>

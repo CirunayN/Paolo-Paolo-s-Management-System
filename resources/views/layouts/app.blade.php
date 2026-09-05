@@ -293,11 +293,6 @@
         <div>
             &copy; {{ date('Y') }} <strong class="text-slate-700 dark:text-slate-200">Paolo Paolo D.A Matting &amp; Accessories</strong>. All rights reserved.
         </div>
-        <div class="flex items-center gap-3 font-medium">
-            <span>Click logo for menu</span>
-            <span>&bull;</span>
-            <span class="text-cyan-600 dark:text-cyan-400">Automotive Management System v1.0</span>
-        </div>
     </footer>
 
     <!-- Global JavaScript: Sliding Drawer & Light/Dark Theme Switcher -->

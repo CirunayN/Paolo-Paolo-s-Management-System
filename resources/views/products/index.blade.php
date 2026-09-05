@@ -8,7 +8,6 @@
             <h2 class="text-2xl sm:text-3xl font-bold font-display text-slate-900 dark:text-white flex items-center gap-3">
                 <i class="fas fa-boxes-stacked text-cyan-500"></i> Inventory
             </h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Physical floor matting, trunk trays, and automotive accessories</p>
         </div>
 
         <div class="flex items-center gap-2.5">

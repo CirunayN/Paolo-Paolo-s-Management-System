@@ -12,7 +12,6 @@
             <h2 class="text-2xl sm:text-3xl font-bold font-display text-slate-900 dark:text-white">
                 Welcome back, {{ auth()->user()->name }}!
             </h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Paolo Paolo D.A Matting &amp; Accessories Management System</p>
         </div>
         <div class="flex items-center gap-3">
             <a href="{{ route('pos.index') }}" class="flex items-center gap-2.5 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-sm shadow-lg shadow-cyan-500/20 transition-all transform hover:-translate-y-0.5">
@@ -106,7 +105,6 @@
                 <h3 class="text-lg font-bold font-display text-slate-900 dark:text-white flex items-center gap-2.5">
                     <i class="fas fa-vault text-cyan-500"></i> Inventory Asset Valuation &amp; Capital Reserve
                 </h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Real-time monetary valuation of all physical matting &amp; accessories currently sitting in the shop</p>
             </div>
             <div class="flex items-center gap-2">
                 <a href="{{ route('products.index') }}" class="px-3.5 py-1.5 rounded-xl bg-slate-200 dark:bg-dark-700 hover:bg-slate-300 dark:hover:bg-dark-600 text-slate-700 dark:text-slate-200 font-bold text-xs transition-colors">
@@ -168,7 +166,6 @@
                     <h3 class="text-lg font-bold font-display text-slate-900 dark:text-white flex items-center gap-2">
                         <i class="fas fa-chart-area text-cyan-500"></i> 7-Day Revenue &amp; Order Volume
                     </h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Interactive daily sales trend powered by ECharts</p>
                 </div>
                 <span class="text-xs bg-slate-100 dark:bg-dark-700 text-slate-600 dark:text-slate-300 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-semibold">Live Daily Feed</span>
             </div>

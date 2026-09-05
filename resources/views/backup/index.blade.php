@@ -8,9 +8,6 @@
             <h2 class="text-2xl sm:text-3xl font-bold font-display text-slate-900 dark:text-white flex items-center gap-3">
                 <i class="fas fa-hard-drive text-cyan-500"></i> Database Backup Module
             </h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                Local backup system saved to <strong class="text-cyan-600 dark:text-cyan-400 font-mono">{{ $backupDir }}</strong>
-            </p>
         </div>
         <form method="POST" action="{{ route('backup.create') }}">
             @csrf
