@@ -66,7 +66,11 @@
                     data-model="{{ strtolower($p->vehicle_model) }}"
                     data-brand="{{ strtolower($p->vehicle_brand) }}"
                     data-cat="{{ $p->category_id }}"
-                    onclick="addToCart({{ $p->id }}, '{{ addslashes($p->name) }}', {{ $p->unit_price }}, {{ $qty }})">
+                    data-id="{{ $p->id }}"
+                    data-product-name="{{ $p->name }}"
+                    data-price="{{ (float)$p->unit_price }}"
+                    data-stock="{{ (float)$qty }}"
+                    onclick="clickAddToCart(this)">
 
                     <!-- Image with Gallery Icon and Stock Tag -->
                     <div class="relative w-full h-32 rounded-xl overflow-hidden bg-slate-100 dark:bg-dark-900 mb-2.5 border border-slate-200 dark:border-slate-800 flex items-center justify-center">
@@ -125,6 +129,7 @@
                 <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                     <span class="font-bold text-sm text-slate-900 dark:text-white">Active Terminal</span>
+                    <span id="cartCountBadge" class="px-2 py-0.5 rounded-full text-xs font-bold bg-cyan-600 text-white">0</span>
                 </div>
                 <button type="button" onclick="clearCart()" class="text-xs font-semibold text-rose-500 hover:text-rose-600 flex items-center gap-1 transition-colors">
                     <i class="fas fa-trash-alt"></i> Clear Cart
@@ -319,6 +324,15 @@ let activeBrand = 'all';
 let activeCategory = 'all';
 
 // Cart Logic
+function clickAddToCart(card) {
+    if (!card) return;
+    const id = parseInt(card.getAttribute('data-id'), 10);
+    const name = card.getAttribute('data-product-name') || 'Item';
+    const price = parseFloat(card.getAttribute('data-price')) || 0;
+    const stock = parseFloat(card.getAttribute('data-stock')) || 0;
+    addToCart(id, name, price, stock);
+}
+
 function addToCart(id, name, price, stock) {
     if (stock <= 0) {
         alert('Item is currently out of stock!');
@@ -380,8 +394,14 @@ function setOrderType(type) {
 
 function renderCart() {
     const list = document.getElementById('cartItemsList');
+    if (!list) return;
+
     const badge = document.getElementById('cartCountBadge');
-    badge.innerText = cart.reduce((sum, i) => sum + i.quantity, 0);
+    if (badge) {
+        badge.innerText = cart.reduce((sum, i) => sum + i.quantity, 0);
+    }
+
+    const checkoutBtn = document.getElementById('checkoutBtn');
 
     if (cart.length === 0) {
         list.innerHTML = `
@@ -391,12 +411,12 @@ function renderCart() {
                 <p class="text-xs text-slate-400 mt-1">Select vehicle matting or accessories to add to cart</p>
             </div>
         `;
-        document.getElementById('checkoutBtn').disabled = true;
+        if (checkoutBtn) checkoutBtn.disabled = true;
         calculateTotals();
         return;
     }
 
-    document.getElementById('checkoutBtn').disabled = false;
+    if (checkoutBtn) checkoutBtn.disabled = false;
     let html = '<div class="space-y-2.5">';
 
     cart.forEach(item => {
@@ -428,13 +448,21 @@ function renderCart() {
 function calculateTotals() {
     const subtotal = cart.reduce((sum, i) => sum + (i.quantity * i.price), 0);
     const installFee = (currentOrderType === 'With Installation' && cart.length > 0) ? 300.00 : 0.00;
-    const discount = parseFloat(document.getElementById('discountInput').value) || 0;
+    const discountEl = document.getElementById('discountInput');
+    const discount = discountEl ? (parseFloat(discountEl.value) || 0) : 0;
     const grandTotal = Math.max(0, subtotal + installFee - discount);
 
-    document.getElementById('subtotalDisplay').innerText = '₱ ' + subtotal.toLocaleString('en-US', {minimumFractionDigits: 2});
-    document.getElementById('installFeeDisplay').innerText = '₱ ' + installFee.toLocaleString('en-US', {minimumFractionDigits: 2});
-    document.getElementById('grandTotalDisplay').innerText = '₱ ' + grandTotal.toLocaleString('en-US', {minimumFractionDigits: 2});
-    document.getElementById('modalTotalDisplay').innerText = '₱ ' + grandTotal.toLocaleString('en-US', {minimumFractionDigits: 2});
+    const subtotalEl = document.getElementById('subtotalDisplay');
+    if (subtotalEl) subtotalEl.innerText = '₱ ' + subtotal.toLocaleString('en-US', {minimumFractionDigits: 2});
+
+    const installFeeEl = document.getElementById('installFeeDisplay');
+    if (installFeeEl) installFeeEl.innerText = '₱ ' + installFee.toLocaleString('en-US', {minimumFractionDigits: 2});
+
+    const grandTotalEl = document.getElementById('grandTotalDisplay');
+    if (grandTotalEl) grandTotalEl.innerText = '₱ ' + grandTotal.toLocaleString('en-US', {minimumFractionDigits: 2});
+
+    const modalTotalEl = document.getElementById('modalTotalDisplay');
+    if (modalTotalEl) modalTotalEl.innerText = '₱ ' + grandTotal.toLocaleString('en-US', {minimumFractionDigits: 2});
 }
 
 function onCustomerSelect(select) {
