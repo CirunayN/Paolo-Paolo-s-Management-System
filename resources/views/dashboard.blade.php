@@ -13,18 +13,14 @@
                 Welcome back, {{ auth()->user()->name }}!
             </h2>
         </div>
+        @if(auth()->user()->isAdmin())
         <div class="flex items-center gap-3">
-            <a href="{{ route('pos.index') }}" class="flex items-center gap-2.5 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-sm shadow-lg shadow-cyan-500/20 transition-all transform hover:-translate-y-0.5">
-                <i class="fas fa-cash-register text-base"></i>
-                <span>Open POS Terminal</span>
-            </a>
-            @if(auth()->user()->isAdmin())
-            <a href="{{ route('backup.index') }}" class="flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-dark-700 dark:hover:bg-dark-600 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-sm transition-all">
+            <a href="{{ route('backup.index') }}" class="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-dark-700 dark:hover:bg-dark-600 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-semibold text-sm transition-all">
                 <i class="fas fa-hard-drive text-cyan-500"></i>
                 <span>Backups</span>
             </a>
-            @endif
         </div>
+        @endif
     </div>
 
     <!-- 4 Primary KPI Cards (Enlarged, Clear & Accessible) -->
@@ -169,7 +165,7 @@
                 </div>
                 <span class="text-xs bg-slate-100 dark:bg-dark-700 text-slate-600 dark:text-slate-300 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 font-semibold">Live Daily Feed</span>
             </div>
-            <div id="salesTrendChart" style="height: 330px; width: 100%;"></div>
+            <div id="salesTrendChart" style="height: 380px; width: 100%;"></div>
         </div>
 
         <!-- Category Distribution Chart (1 Column) -->
@@ -182,7 +178,7 @@
                     <p class="text-xs text-slate-500 dark:text-slate-400">Revenue share across matting types</p>
                 </div>
             </div>
-            <div id="categoryChart" style="height: 330px; width: 100%;"></div>
+            <div id="categoryChart" style="height: 380px; width: 100%;"></div>
         </div>
     </div>
 
@@ -253,7 +249,6 @@
                     <h3 class="text-lg font-bold font-display text-slate-900 dark:text-white flex items-center gap-2">
                         <i class="fas fa-boxes-stacked text-cyan-500"></i> Stock Intelligence
                     </h3>
-                    <a href="{{ route('inventory.index') }}" class="text-xs font-semibold text-cyan-600 dark:text-cyan-400 hover:underline">Full Inventory &rarr;</a>
                 </div>
 
                 <!-- Tab Buttons -->
@@ -450,19 +445,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 formatter: params => `${params.name}<br/><b>₱ ${Number(params.value).toLocaleString('en-US', {minimumFractionDigits: 2})}</b> (${params.percent}%)`
             },
             legend: {
-                bottom: '0%',
+                bottom: '2%',
                 left: 'center',
-                textStyle: { color: textColor, fontSize: 11 },
+                textStyle: { color: isDark ? '#94a3b8' : '#334155', fontSize: 11 },
                 itemWidth: 12,
-                itemHeight: 12
+                itemHeight: 12,
+                itemGap: 10
             },
             series: [
                 {
                     name: 'Sales Category',
                     type: 'pie',
-                    radius: ['45%', '70%'],
-                    center: ['50%', '42%'],
-                    avoidLabelOverlap: false,
+                    radius: ['38%', '58%'],
+                    center: ['50%', '35%'],
+                    avoidLabelOverlap: true,
                     itemStyle: {
                         borderRadius: 6,
                         borderColor: isDark ? '#0f172a' : '#ffffff',
@@ -470,7 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     label: { show: false },
                     emphasis: {
-                        label: { show: true, fontSize: 13, fontWeight: 'bold' }
+                        label: { show: true, fontSize: 13, fontWeight: 'bold', color: isDark ? '#f8fafc' : '#0f172a' }
                     },
                     data: displayData,
                     color: ['#0284c7', '#0ea5e9', '#6366f1', '#a855f7', '#ec4899', '#f59e0b', '#10b981']

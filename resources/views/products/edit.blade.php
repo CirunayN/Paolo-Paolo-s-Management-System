@@ -72,14 +72,14 @@
             <div>
                 <div class="flex items-center justify-between mb-1.5">
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                        Vehicle Brand <span class="text-rose-500">*</span>
+                        Brand <span class="text-rose-500">*</span>
                     </label>
                     <button type="button" onclick="openNewBrandModal()" class="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1">
                         <i class="fas fa-plus-circle"></i> + New Brand
                     </button>
                 </div>
                 <select name="vehicle_brand" id="brandSelect" required class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
-                    <option value="">Select Vehicle Brand</option>
+                    <option value="">Select Brand</option>
                     @foreach($brands as $brand)
                     <option value="{{ $brand }}" {{ old('vehicle_brand', $product->vehicle_brand) == $brand ? 'selected' : '' }}>
                         {{ $brand }}
@@ -697,15 +697,15 @@ function submitNewUom(e) {
     </div>
 </div>
 
-<!-- MODAL: Quick Add Vehicle Brand -->
+<!-- MODAL: Quick Add Brand -->
 <div id="newBrandModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
     <div class="w-full max-w-md bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-700 rounded-3xl p-6 shadow-2xl space-y-4 animate-fade-in">
         <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
             <div class="flex items-center gap-2.5">
                 <span class="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-500 flex items-center justify-center text-sm">
-                    <i class="fas fa-car-side"></i>
+                    <i class="fas fa-tag"></i>
                 </span>
-                <h3 class="text-base font-bold font-display text-slate-900 dark:text-white">Add Vehicle Brand</h3>
+                <h3 class="text-base font-bold font-display text-slate-900 dark:text-white">Add Brand</h3>
             </div>
             <button type="button" onclick="closeNewBrandModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg flex items-center justify-center">&times;</button>
         </div>
@@ -713,7 +713,7 @@ function submitNewUom(e) {
         <form id="newBrandForm" onsubmit="submitNewBrand(event)" class="space-y-4 text-xs">
             <div>
                 <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Brand Name <span class="text-rose-500">*</span></label>
-                <input type="text" id="newBrandInput" required placeholder="e.g. VinFast, Zeekr, Omoda, Changan..."
+                <input type="text" id="newBrandInput" required placeholder="e.g. Toyota, Honda, Universal, Sparco, 3M..."
                     class="w-full py-2.5 px-3 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500 text-sm">
                 <span class="text-[11px] text-slate-400 mt-1 block">Adds this brand to the dropdown list and selects it immediately.</span>
             </div>

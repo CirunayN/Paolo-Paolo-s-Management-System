@@ -62,7 +62,7 @@
             <div>
                 <select name="vehicle_brand" onchange="this.form.submit()"
                     class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
-                    <option value="">All Vehicle Brands</option>
+                    <option value="">All Brands</option>
                     @foreach($brands as $brand)
                     <option value="{{ $brand }}" {{ request('vehicle_brand') == $brand ? 'selected' : '' }}>
                         {{ $brand }}

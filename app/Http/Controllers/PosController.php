@@ -43,6 +43,9 @@ class PosController extends Controller
             'cart.*.price' => 'required|numeric|min:0',
             'customer_id' => 'nullable|exists:customers,id',
             'customer_name' => 'nullable|string|max:100',
+            'customer_phone' => 'nullable|string|max:50',
+            'vehicle_model' => 'nullable|string|max:100',
+            'plate_number' => 'nullable|string|max:30',
             'vehicle_details' => 'nullable|string|max:150',
             'order_type' => 'required|string|in:Walk-in,With Installation,Pick-up / Delivery',
             'installation_fee' => 'nullable|numeric|min:0',
@@ -55,6 +58,64 @@ class PosController extends Controller
 
         return DB::transaction(function () use ($validated, $request) {
             $user = Auth::user();
+
+            // Handle Customer (Auto-register unregistered customer into Customers module)
+            $customerId = $validated['customer_id'] ?? null;
+            $customerName = trim($validated['customer_name'] ?? '');
+            $customerPhone = trim($request->input('customer_phone') ?? '');
+            $vehicleModel = trim($request->input('vehicle_model') ?? '');
+            $plateNumber = trim($request->input('plate_number') ?? '');
+
+            if (!$customerId && $customerName && strcasecmp($customerName, 'Walk-in Customer') !== 0) {
+                $query = Customer::where('name', $customerName);
+                if ($customerPhone) {
+                    $query->orWhere('contact_number', $customerPhone);
+                }
+                $existingCust = $query->first();
+
+                if (!$existingCust) {
+                    $existingCust = Customer::create([
+                        'name' => $customerName,
+                        'contact_number' => $customerPhone ?: null,
+                        'vehicle_make_model' => $vehicleModel ?: null,
+                        'plate_number' => $plateNumber ?: null,
+                        'address' => 'Davao City',
+                    ]);
+                } else {
+                    if ($vehicleModel && !$existingCust->vehicle_make_model) {
+                        $existingCust->vehicle_make_model = $vehicleModel;
+                    }
+                    if ($plateNumber && !$existingCust->plate_number) {
+                        $existingCust->plate_number = $plateNumber;
+                    }
+                    if ($customerPhone && !$existingCust->contact_number) {
+                        $existingCust->contact_number = $customerPhone;
+                    }
+                    $existingCust->save();
+                }
+                $customerId = $existingCust->id;
+            } elseif ($customerId) {
+                // If existing customer selected, update empty fields if newly supplied
+                $existingCust = Customer::find($customerId);
+                if ($existingCust) {
+                    $updated = false;
+                    if ($customerPhone && $existingCust->contact_number !== $customerPhone) {
+                        $existingCust->contact_number = $customerPhone;
+                        $updated = true;
+                    }
+                    if ($vehicleModel && $existingCust->vehicle_make_model !== $vehicleModel) {
+                        $existingCust->vehicle_make_model = $vehicleModel;
+                        $updated = true;
+                    }
+                    if ($plateNumber && $existingCust->plate_number !== $plateNumber) {
+                        $existingCust->plate_number = $plateNumber;
+                        $updated = true;
+                    }
+                    if ($updated) {
+                        $existingCust->save();
+                    }
+                }
+            }
 
             // Calculate Subtotal
             $subtotal = 0;
@@ -82,13 +143,20 @@ class PosController extends Controller
             $sequence = $latestOrder ? (intval(substr($latestOrder->invoice_no, -4)) + 1) : 1;
             $invoiceNo = 'INV-' . $datePrefix . '-' . str_pad($sequence, 4, '0', STR_PAD_LEFT);
 
+            $finalVehicleDetails = $validated['vehicle_details'] ?? null;
+            if (!$finalVehicleDetails && ($vehicleModel || $plateNumber)) {
+                $finalVehicleDetails = trim($vehicleModel . ($plateNumber ? " ({$plateNumber})" : ''));
+            }
+
+            $finalCustName = $customerName ?: ($customerId ? Customer::find($customerId)?->name : 'Walk-in Customer');
+
             // Create Order
             $order = Order::create([
                 'invoice_no' => $invoiceNo,
                 'user_id' => $user->id,
-                'customer_id' => $validated['customer_id'] ?? null,
-                'customer_name' => $validated['customer_name'] ?? ($validated['customer_id'] ? Customer::find($validated['customer_id'])->name : 'Walk-in Customer'),
-                'vehicle_details' => $validated['vehicle_details'] ?? null,
+                'customer_id' => $customerId,
+                'customer_name' => $finalCustName,
+                'vehicle_details' => $finalVehicleDetails,
                 'order_type' => $validated['order_type'],
                 'subtotal' => $subtotal,
                 'installation_fee' => $installationFee,

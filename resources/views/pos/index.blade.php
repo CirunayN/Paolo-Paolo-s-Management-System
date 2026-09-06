@@ -20,12 +20,12 @@
                 </div>
             </div>
 
-            <!-- Vehicle Brand Quick-Filter Buttons -->
+            <!-- Brand Quick-Filter Buttons -->
             <div class="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mr-1 shrink-0">Make:</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mr-1 shrink-0">Brand:</span>
                 <button type="button" onclick="filterBrand('all')" data-brand-btn="all"
                     class="brand-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-cyan-600 text-white shadow-sm shrink-0 transition-all">
-                    All Makes
+                    All Brands
                 </button>
                 @foreach($vehicleBrands as $brand)
                 <button type="button" onclick="filterBrand('{{ strtolower($brand) }}')" data-brand-btn="{{ strtolower($brand) }}"
@@ -117,25 +117,24 @@
         </div>
     </div>
 
-    <!-- RIGHT COLUMN: Real-Time Interactive Cart -->
-    <div class="w-full lg:w-[440px] flex flex-col bg-white dark:bg-[#0c1222] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden shrink-0">
-        <!-- Cart Header & Order Type Selection -->
-        <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-dark-850/70 space-y-3">
+    <!-- RIGHT COLUMN: Active Sale / Checkout Sidebar -->
+    <div class="w-full lg:w-[420px] shrink-0 bg-white dark:bg-[#0c1222] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl flex flex-col overflow-hidden">
+        <!-- Top Order Info & Type Toggle -->
+        <div class="p-3.5 border-b border-slate-200 dark:border-slate-800 space-y-2.5 bg-slate-50/50 dark:bg-dark-850/50">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                    <i class="fas fa-cart-shopping text-cyan-500 text-lg"></i>
-                    <h3 class="font-bold font-display text-slate-900 dark:text-white text-base">Current Cart</h3>
-                    <span id="cartCountBadge" class="px-2 py-0.5 rounded-full text-xs font-bold bg-cyan-500 text-white">0</span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="font-bold text-sm text-slate-900 dark:text-white">Active Terminal</span>
                 </div>
-                <button type="button" onclick="clearCart()" class="text-xs font-semibold text-rose-500 hover:text-rose-600 hover:underline">
-                    Clear Cart
+                <button type="button" onclick="clearCart()" class="text-xs font-semibold text-rose-500 hover:text-rose-600 flex items-center gap-1 transition-colors">
+                    <i class="fas fa-trash-alt"></i> Clear Cart
                 </button>
             </div>
 
-            <!-- Order Type Chips -->
-            <div class="grid grid-cols-3 gap-1.5 p-1 bg-slate-200/80 dark:bg-dark-900 rounded-xl text-xs font-semibold">
+            <!-- Order Type Selector -->
+            <div class="grid grid-cols-3 gap-1 p-1 bg-slate-200/70 dark:bg-dark-900 rounded-xl font-bold text-xs">
                 <button type="button" onclick="setOrderType('Walk-in')" id="typeBtn-walkin"
-                    class="order-type-btn py-1.5 rounded-lg text-center bg-cyan-600 text-white shadow-sm transition-all">
+                    class="order-type-btn py-1.5 rounded-lg text-center bg-cyan-600 text-white shadow transition-all">
                     Walk-in
                 </button>
                 <button type="button" onclick="setOrderType('With Installation')" id="typeBtn-install"
@@ -150,22 +149,29 @@
 
             <!-- Customer & Vehicle Selection -->
             <div class="space-y-1.5 text-xs">
-                <div class="flex items-center gap-2">
-                    <select id="customerSelect" onchange="onCustomerSelect(this)"
-                        class="flex-1 py-1.5 px-3 bg-white dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-1 focus:ring-cyan-500">
-                        <option value="">Walk-in Customer (Unregistered)</option>
-                        @foreach($customers as $c)
-                        <option value="{{ $c->id }}" data-name="{{ $c->name }}" data-phone="{{ $c->contact_number }}" data-vehicle="{{ $c->vehicle_make_model }}" data-plate="{{ $c->plate_number }}">
-                            {{ $c->name }} ({{ $c->vehicle_make_model ?: 'No vehicle' }})
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
-                <div id="customerDetailsInputs" class="grid grid-cols-2 gap-2">
-                    <input type="text" id="custNameInput" placeholder="Customer Name"
-                        class="py-1 px-2.5 bg-white dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-white">
-                    <input type="text" id="custVehicleInput" placeholder="Vehicle & Plate #"
-                        class="py-1 px-2.5 bg-white dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-white">
+                <select id="customerSelect" onchange="onCustomerSelect(this)"
+                    class="w-full py-1.5 px-3 bg-white dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-1 focus:ring-cyan-500">
+                    <option value="">Walk-in Customer (Unregistered)</option>
+                    @foreach($customers as $c)
+                    <option value="{{ $c->id }}" data-name="{{ $c->name }}" data-phone="{{ $c->contact_number }}" data-vehicle="{{ $c->vehicle_make_model }}" data-plate="{{ $c->plate_number }}">
+                        {{ $c->name }} ({{ $c->vehicle_make_model ?: 'No vehicle' }})
+                    </option>
+                    @endforeach
+                </select>
+                <!-- Separate inputs for Name, Contact, Vehicle Model, and Plate # -->
+                <div id="customerDetailsInputs" class="space-y-1.5">
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <input type="text" id="custNameInput" placeholder="Customer Name"
+                            class="py-1 px-2.5 bg-white dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500">
+                        <input type="text" id="custPhoneInput" placeholder="Phone (e.g. 0917...)"
+                            class="py-1 px-2.5 bg-white dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-1.5">
+                        <input type="text" id="custVehicleInput" placeholder="Vehicle (e.g. Fortuner)"
+                            class="py-1 px-2.5 bg-white dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500">
+                        <input type="text" id="custPlateInput" placeholder="Plate # (e.g. NBH-4821)"
+                            class="py-1 px-2.5 bg-white dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500">
+                    </div>
                 </div>
             </div>
         </div>
@@ -435,10 +441,14 @@ function onCustomerSelect(select) {
     const opt = select.options[select.selectedIndex];
     if (select.value) {
         document.getElementById('custNameInput').value = opt.getAttribute('data-name') || '';
-        document.getElementById('custVehicleInput').value = (opt.getAttribute('data-vehicle') || '') + ' ' + (opt.getAttribute('data-plate') || '');
+        document.getElementById('custPhoneInput').value = opt.getAttribute('data-phone') || '';
+        document.getElementById('custVehicleInput').value = opt.getAttribute('data-vehicle') || '';
+        document.getElementById('custPlateInput').value = opt.getAttribute('data-plate') || '';
     } else {
         document.getElementById('custNameInput').value = '';
+        document.getElementById('custPhoneInput').value = '';
         document.getElementById('custVehicleInput').value = '';
+        document.getElementById('custPlateInput').value = '';
     }
 }
 
@@ -531,12 +541,21 @@ function submitCheckout() {
     const refInput = document.getElementById('paymentRefInput');
     const paymentRef = (refInput && !refInput.parentElement.classList.contains('hidden')) ? refInput.value.trim() : null;
 
+    const custName = document.getElementById('custNameInput').value.trim();
+    const custPhone = document.getElementById('custPhoneInput').value.trim();
+    const vehicleModel = document.getElementById('custVehicleInput').value.trim();
+    const plateNo = document.getElementById('custPlateInput').value.trim();
+    const vehicleDetails = vehicleModel ? (vehicleModel + (plateNo ? ` (${plateNo})` : '')) : (plateNo || null);
+
     const payload = {
         cart: cart,
         order_type: currentOrderType,
         customer_id: document.getElementById('customerSelect').value || null,
-        customer_name: document.getElementById('custNameInput').value || 'Walk-in Customer',
-        vehicle_details: document.getElementById('custVehicleInput').value || null,
+        customer_name: custName || 'Walk-in Customer',
+        customer_phone: custPhone || null,
+        vehicle_model: vehicleModel || null,
+        plate_number: plateNo || null,
+        vehicle_details: vehicleDetails,
         installation_fee: (currentOrderType === 'With Installation') ? 300.00 : 0.00,
         discount_amount: parseFloat(document.getElementById('discountInput').value) || 0,
         payment_method: currentPaymentMethod,

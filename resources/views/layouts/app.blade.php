@@ -235,14 +235,6 @@
             </a>
             @endif
         </nav>
-
-        <!-- Drawer Footer Info -->
-        <div class="p-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-dark-850">
-            <div class="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-between">
-                <span>Auto-hides when selecting a module</span>
-                <i class="fas fa-arrow-left"></i>
-            </div>
-        </div>
     </aside>
 
     <!-- Flash Messages & Alerts -->
