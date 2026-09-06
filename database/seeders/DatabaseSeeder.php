@@ -489,5 +489,8 @@ class DatabaseSeeder extends Seeder
 
         // 8. Initialize Backup Settings
         BackupSetting::getSettings();
+
+        // 9. Additional seed for Sep 4 and Sep 6
+        $this->call(Sep4AndSep6Seeder::class);
     }
 }
