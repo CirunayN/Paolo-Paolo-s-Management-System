@@ -32,7 +32,6 @@
             <form method="POST" action="{{ route('backup.settings') }}" class="space-y-4 text-sm">
                 @csrf
 
-                <!-- Mode Selection: Manual vs Automatic -->
                 <div>
                     <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-2">Backup Mode</label>
                     <div class="grid grid-cols-2 gap-2">
