@@ -81,6 +81,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/backup/settings', [BackupController::class, 'updateSettings'])->name('backup.settings');
         Route::get('/backup/download/{filename}', [BackupController::class, 'download'])->name('backup.download');
         Route::delete('/backup/{filename}', [BackupController::class, 'destroy'])->name('backup.destroy');
+        Route::post('/backup/restore/{filename}', [BackupController::class, 'restore'])->name('backup.restore');
+        Route::post('/backup/restore-upload', [BackupController::class, 'restoreFromUpload'])->name('backup.restore-upload');
     });
 });
 

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Models\BackupSetting;
 use PDO;
@@ -138,6 +140,92 @@ class BackupController extends Controller
         return redirect()->route('backup.index')->with('error', 'Backup file not found.');
     }
 
+    public function restore(string $filename)
+    {
+        $cleanFilename = basename($filename);
+        $settings = BackupSetting::getSettings();
+        $backupDir = $this->getBackupDirectory($settings);
+        $fullPath = rtrim($backupDir, '\\/') . DIRECTORY_SEPARATOR . $cleanFilename;
+
+        if (!File::exists($fullPath)) {
+            return redirect()->route('backup.index')->with('error', "Backup file '{$cleanFilename}' was not found.");
+        }
+
+        // 1. Automatic safety snapshot before restore
+        $safetyFilename = 'pre_restore_safety_backup_' . date('Y-m-d_His') . '.sql';
+        $safetyPath = rtrim($backupDir, '\\/') . DIRECTORY_SEPARATOR . $safetyFilename;
+        $this->performDatabaseDump($safetyPath);
+
+        // 2. Perform restoration
+        $success = $this->performDatabaseRestore($fullPath);
+
+        if ($success) {
+            try {
+                Artisan::call('cache:clear');
+                Artisan::call('view:clear');
+            } catch (\Throwable $e) {
+                // Ignore cache clearing errors
+            }
+
+            return redirect()->route('backup.index')->with('success', "Database successfully restored from '{$cleanFilename}'! A pre-restore safety snapshot ('{$safetyFilename}') was automatically created.");
+        }
+
+        return redirect()->route('backup.index')->with('error', "Failed to restore database from '{$cleanFilename}'. Please verify file contents.");
+    }
+
+    public function restoreFromUpload(Request $request)
+    {
+        $request->validate([
+            'backup_file' => 'required|file|max:102400',
+        ]);
+
+        $file = $request->file('backup_file');
+        $ext = strtolower($file->getClientOriginalExtension());
+        if (!in_array($ext, ['sql', 'gz'])) {
+            return redirect()->route('backup.index')->with('error', 'Only .sql or .gz database backup files are permitted.');
+        }
+
+        $settings = BackupSetting::getSettings();
+        $backupDir = $this->getBackupDirectory($settings);
+
+        if (!File::exists($backupDir)) {
+            try {
+                File::makeDirectory($backupDir, 0777, true, true);
+            } catch (\Exception $e) {
+                $backupDir = storage_path('app/backups');
+            }
+        }
+
+        // 1. Automatic safety snapshot before restore
+        $safetyFilename = 'pre_restore_safety_backup_' . date('Y-m-d_His') . '.sql';
+        $safetyPath = rtrim($backupDir, '\\/') . DIRECTORY_SEPARATOR . $safetyFilename;
+        $this->performDatabaseDump($safetyPath);
+
+        // 2. Save uploaded backup archive to backup directory
+        $originalName = $file->getClientOriginalName();
+        $cleanOriginalName = preg_replace('/[^a-zA-Z0-9_\.-]/', '_', $originalName);
+        $savedFilename = 'imported_' . date('Y-m-d_His') . '_' . $cleanOriginalName;
+        $savedPath = rtrim($backupDir, '\\/') . DIRECTORY_SEPARATOR . $savedFilename;
+
+        $file->move($backupDir, $savedFilename);
+
+        // 3. Perform restoration
+        $success = $this->performDatabaseRestore($savedPath);
+
+        if ($success) {
+            try {
+                Artisan::call('cache:clear');
+                Artisan::call('view:clear');
+            } catch (\Throwable $e) {
+                // Ignore cache clearing errors
+            }
+
+            return redirect()->route('backup.index')->with('success', "External backup '{$originalName}' uploaded and restored successfully! A pre-restore safety snapshot was saved.");
+        }
+
+        return redirect()->route('backup.index')->with('error', "Uploaded database restore failed. Please verify that the SQL dump contains valid MySQL syntax.");
+    }
+
     protected function getBackupDirectory(BackupSetting $settings): string
     {
         $dir = $settings->storage_path ?: $this->defaultBackupDir;
@@ -209,6 +297,91 @@ class BackupController extends Controller
         } catch (\Exception $e) {
             return false;
         }
+    }
+
+    protected function performDatabaseRestore(string $filePath): bool
+    {
+        if (!File::exists($filePath)) {
+            return false;
+        }
+
+        $actualSqlPath = $filePath;
+        $tempUncompressed = null;
+
+        // If file is .gz, decompress first
+        if (strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) === 'gz') {
+            $tempUncompressed = storage_path('app/temp_restore_' . uniqid() . '.sql');
+            try {
+                $gz = gzopen($filePath, 'rb');
+                $out = fopen($tempUncompressed, 'wb');
+                while (!gzeof($gz)) {
+                    fwrite($out, gzread($gz, 4096));
+                }
+                gzclose($gz);
+                fclose($out);
+                $actualSqlPath = $tempUncompressed;
+            } catch (\Throwable $e) {
+                Log::error("Failed decompressing backup gz: " . $e->getMessage());
+                if ($tempUncompressed && File::exists($tempUncompressed)) {
+                    @File::delete($tempUncompressed);
+                }
+                return false;
+            }
+        }
+
+        $dbHost = config('database.connections.mysql.host', '127.0.0.1');
+        $dbPort = config('database.connections.mysql.port', '3306');
+        $dbName = config('database.connections.mysql.database', 'paolo_paolo_management_db');
+        $dbUser = config('database.connections.mysql.username', 'root');
+        $dbPass = config('database.connections.mysql.password', '');
+
+        $restored = false;
+
+        // 1. Try mysql.exe via CLI
+        $mysqlPaths = [
+            'C:\\xampp\\mysql\\bin\\mysql.exe',
+            'mysql',
+        ];
+
+        foreach ($mysqlPaths as $bin) {
+            $passPart = !empty($dbPass) ? "-p\"{$dbPass}\"" : "";
+            $cmd = "\"{$bin}\" -h {$dbHost} -P {$dbPort} -u {$dbUser} {$passPart} --default-character-set=utf8mb4 {$dbName} < \"{$actualSqlPath}\" 2>&1";
+
+            @exec("cmd /c \"{$cmd}\"", $output, $returnVar);
+
+            if ($returnVar === 0) {
+                $restored = true;
+                break;
+            }
+        }
+
+        // 2. Pure PHP PDO Fallback with multi statements
+        if (!$restored) {
+            try {
+                $pdo = new PDO(
+                    "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset=utf8mb4",
+                    $dbUser,
+                    $dbPass,
+                    [
+                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                        PDO::MYSQL_ATTR_MULTI_STATEMENTS => true,
+                    ]
+                );
+
+                $sql = File::get($actualSqlPath);
+                $pdo->exec("SET FOREIGN_KEY_CHECKS=0;\n" . $sql . "\nSET FOREIGN_KEY_CHECKS=1;");
+                $restored = true;
+            } catch (\Throwable $e) {
+                Log::error("PDO Database restore failed: " . $e->getMessage());
+                $restored = false;
+            }
+        }
+
+        if ($tempUncompressed && File::exists($tempUncompressed)) {
+            @File::delete($tempUncompressed);
+        }
+
+        return $restored;
     }
 
     protected function checkAndRunAutoBackup(BackupSetting $settings, string $backupDir): void
