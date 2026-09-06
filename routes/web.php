@@ -83,6 +83,8 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/backup/{filename}', [BackupController::class, 'destroy'])->name('backup.destroy');
         Route::post('/backup/restore/{filename}', [BackupController::class, 'restore'])->name('backup.restore');
         Route::post('/backup/restore-upload', [BackupController::class, 'restoreFromUpload'])->name('backup.restore-upload');
+        Route::post('/backup/browse-folder', [BackupController::class, 'browseFolder'])->name('backup.browse-folder');
+        Route::post('/backup/open-explorer', [BackupController::class, 'openInExplorer'])->name('backup.open-explorer');
     });
 });
 

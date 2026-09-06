@@ -76,11 +76,40 @@
                         <p class="text-[11px] text-slate-400 mt-1">Automatically cleans up old backups to save storage on your E: drive.</p>
                     </div>
 
-                    <!-- Storage Path Display -->
+                    <!-- Storage Path Display & Visual Picker -->
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-1.5">Storage Folder Path</label>
-                        <input type="text" name="storage_path" value="{{ $settings->storage_path }}"
-                            class="w-full py-2 px-3 bg-slate-100 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl font-mono text-xs text-slate-700 dark:text-slate-300 focus:ring-1 focus:ring-cyan-500">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Storage Folder Path</label>
+                            <button type="button" onclick="openFolderInExplorer()" class="text-[11px] font-semibold text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1" title="Open folder in Windows File Explorer">
+                                <i class="fas fa-arrow-up-right-from-square"></i> Open in Explorer
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <input type="text" name="storage_path" id="storagePathInput" value="{{ $settings->storage_path }}"
+                                class="flex-1 py-2 px-3 bg-slate-100 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl font-mono text-xs text-slate-800 dark:text-slate-200 focus:ring-1 focus:ring-cyan-500">
+                            <button type="button" id="browseFolderBtn" onclick="browseWindowsFolder()" 
+                                class="px-3 py-2 rounded-xl bg-slate-200 dark:bg-dark-800 hover:bg-cyan-500 hover:text-white dark:hover:bg-cyan-600 text-slate-700 dark:text-slate-300 text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap shadow-sm"
+                                title="Open Windows Folder Picker">
+                                <i class="fas fa-folder-open text-cyan-500"></i>
+                                <span>Browse...</span>
+                            </button>
+                        </div>
+
+                        <!-- Detected Drive Shortcuts -->
+                        @if(!empty($availableDrives))
+                        <div class="mt-2.5">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Quick Drive Shortcuts:</span>
+                            <div class="flex flex-wrap gap-1.5">
+                                @foreach($availableDrives as $drive)
+                                <button type="button" onclick="setStoragePathPreset('{{ addslashes($drive['preset']) }}')"
+                                    class="px-2 py-1 rounded-lg bg-slate-100 dark:bg-dark-850 hover:bg-cyan-50 dark:hover:bg-cyan-500/15 border border-slate-200 dark:border-slate-700/80 text-[11px] font-mono text-slate-600 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors">
+                                    <i class="fas fa-hard-drive text-cyan-500 text-[10px] mr-1"></i>{{ $drive['letter'] }}: (PaoloPaolo_Backups)
+                                </button>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+                        <p class="text-[11px] text-slate-400 mt-1.5">Click <strong>Browse...</strong> to open Windows Explorer and choose any folder or USB drive.</p>
                     </div>
 
                     <div class="pt-2">
@@ -357,6 +386,74 @@ function handleRestoreSubmit(form) {
     }
 
     return true;
+}
+
+function browseWindowsFolder() {
+    const input = document.getElementById('storagePathInput');
+    const btn = document.getElementById('browseFolderBtn');
+    const originalHtml = btn.innerHTML;
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin text-cyan-500"></i><span>Waiting...</span>';
+    
+    fetch("{{ route('backup.browse-folder') }}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+            "Accept": "application/json"
+        },
+        body: JSON.stringify({
+            current_path: input.value
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success && data.path) {
+            input.value = data.path;
+            input.classList.add('ring-2', 'ring-cyan-500');
+            setTimeout(() => input.classList.remove('ring-2', 'ring-cyan-500'), 1500);
+        } else if (data.message && data.message !== 'No folder was selected (dialog was closed or cancelled).') {
+            alert(data.message);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Could not launch Windows folder picker.');
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+    });
+}
+
+function openFolderInExplorer() {
+    const input = document.getElementById('storagePathInput');
+    fetch("{{ route('backup.open-explorer') }}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": "{{ csrf_token() }}",
+            "Accept": "application/json"
+        },
+        body: JSON.stringify({
+            path: input.value
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.success) {
+            alert(data.message || 'Could not open folder in Windows File Explorer.');
+        }
+    })
+    .catch(err => console.error(err));
+}
+
+function setStoragePathPreset(path) {
+    const input = document.getElementById('storagePathInput');
+    input.value = path;
+    input.classList.add('ring-2', 'ring-cyan-500');
+    setTimeout(() => input.classList.remove('ring-2', 'ring-cyan-500'), 1000);
 }
 </script>
 @endsection

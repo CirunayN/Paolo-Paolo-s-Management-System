@@ -64,7 +64,9 @@ class BackupController extends Controller
             usort($files, fn($a, $b) => $b['created_at']->timestamp <=> $a['created_at']->timestamp);
         }
 
-        return view('backup.index', compact('settings', 'files', 'backupDir'));
+        $availableDrives = $this->getAvailableDrives();
+
+        return view('backup.index', compact('settings', 'files', 'backupDir', 'availableDrives'));
     }
 
     public function createBackup()
@@ -224,6 +226,65 @@ class BackupController extends Controller
         }
 
         return redirect()->route('backup.index')->with('error', "Uploaded database restore failed. Please verify that the SQL dump contains valid MySQL syntax.");
+    }
+
+    public function browseFolder(Request $request)
+    {
+        $currentPath = $request->input('current_path', 'E:\\PaoloPaolo_Backups');
+        $scriptPath = app_path('Scripts/browse_folder.ps1');
+
+        if (!File::exists($scriptPath)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Windows folder picker script was not found on the server.',
+            ], 404);
+        }
+
+        $cleanPath = trim(str_replace('"', '', $currentPath));
+        $cmd = "powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File \"{$scriptPath}\" \"{$cleanPath}\"";
+
+        $output = [];
+        $returnVar = 0;
+        @exec($cmd, $output, $returnVar);
+
+        $selectedPath = trim(implode("\n", $output));
+
+        if (!empty($selectedPath)) {
+            return response()->json([
+                'success' => true,
+                'path' => $selectedPath,
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'No folder was selected (dialog was closed or cancelled).',
+        ]);
+    }
+
+    public function openInExplorer(Request $request)
+    {
+        $path = $request->input('path');
+        if (empty($path)) {
+            $settings = BackupSetting::getSettings();
+            $path = $this->getBackupDirectory($settings);
+        }
+
+        if (!File::exists($path)) {
+            try {
+                File::makeDirectory($path, 0777, true, true);
+            } catch (\Exception $e) {
+                return response()->json(['success' => false, 'message' => 'Could not create folder.']);
+            }
+        }
+
+        $cleanPath = trim(str_replace('"', '', $path));
+        @exec("explorer.exe \"{$cleanPath}\"");
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Opened in Windows File Explorer.',
+        ]);
     }
 
     protected function getBackupDirectory(BackupSetting $settings): string
@@ -449,5 +510,21 @@ class BackupController extends Controller
                 @File::delete($file->getPathname());
             }
         }
+    }
+
+    protected function getAvailableDrives(): array
+    {
+        $drives = [];
+        foreach (range('C', 'Z') as $letter) {
+            $drive = $letter . ':\\';
+            if (@File::exists($drive)) {
+                $drives[] = [
+                    'letter' => $letter,
+                    'root' => $drive,
+                    'preset' => $letter . ':\\PaoloPaolo_Backups',
+                ];
+            }
+        }
+        return $drives;
     }
 }
