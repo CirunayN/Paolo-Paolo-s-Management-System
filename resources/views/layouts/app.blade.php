@@ -233,6 +233,10 @@
                 <i class="fas fa-user-shield w-6 text-center text-lg {{ request()->routeIs('users.*') ? 'text-cyan-500' : 'text-slate-400' }}"></i>
                 <span>Staff &amp; Users</span>
             </a>
+            <a href="{{ route('trash.index') }}" class="nav-module-link flex items-center gap-3.5 px-4 py-3 rounded-xl text-base font-semibold transition-all {{ request()->routeIs('trash.*') ? 'bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30' : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-dark-800' }}">
+                <i class="fas fa-box-archive w-6 text-center text-lg {{ request()->routeIs('trash.*') ? 'text-cyan-500' : 'text-slate-400' }}"></i>
+                <span>Trash / Archive</span>
+            </a>
             @endif
         </nav>
     </aside>

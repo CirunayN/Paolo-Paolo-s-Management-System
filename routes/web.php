@@ -12,6 +12,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TrashController;
 use App\Http\Middleware\AdminMiddleware;
 
 Route::get('/', function () {
@@ -72,6 +73,10 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/customers', [CustomerController::class, 'store'])->name('customers.store');
         Route::put('/customers/{customer}', [CustomerController::class, 'update'])->name('customers.update');
         Route::delete('/customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
+        Route::post('/customers/{id}/restore', [CustomerController::class, 'restore'])->name('customers.restore');
+
+        // Centralized Trash / Archive Module
+        Route::get('/trash', [TrashController::class, 'index'])->name('trash.index');
 
         // User / Staff Management
         Route::resource('users', UserController::class)->except(['create', 'edit', 'show']);

@@ -11,7 +11,12 @@ class CustomerController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Customer::withCount('orders');
+        $isArchived = $request->boolean('archived');
+        
+        $activeCount = Customer::count();
+        $archivedCount = Customer::onlyTrashed()->count();
+
+        $query = $isArchived ? Customer::onlyTrashed()->withCount('orders') : Customer::withCount('orders');
 
         if ($request->filled('search')) {
             $s = $request->search;
@@ -25,7 +30,7 @@ class CustomerController extends Controller
         }
 
         $customers = $query->latest()->paginate(12)->withQueryString();
-        return view('customers.index', compact('customers'));
+        return view('customers.index', compact('customers', 'activeCount', 'archivedCount', 'isArchived'));
     }
 
     public function orders(Request $request, Customer $customer)
@@ -89,6 +94,14 @@ class CustomerController extends Controller
     {
         $name = $customer->name;
         $customer->delete();
-        return redirect()->route('customers.index')->with('success', "Customer record for '{$name}' deleted.");
+        return redirect()->route('customers.index')->with('success', "Customer record for '{$name}' moved to Trash / Archive. Historical orders remain intact.");
+    }
+
+    public function restore($id)
+    {
+        $customer = Customer::onlyTrashed()->findOrFail($id);
+        $customer->restore();
+        return redirect()->route('customers.index', ['archived' => 1])
+            ->with('success', "Customer record for '{$customer->name}' has been restored successfully.");
     }
 }
