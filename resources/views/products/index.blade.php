@@ -22,18 +22,11 @@
 
     <!-- Inventory Sub-Navigation Tabs -->
     <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 overflow-x-auto">
-        <a href="{{ route('products.index') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold {{ !$isArchived ? 'bg-cyan-500 text-white shadow-sm shadow-cyan-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-dark-800' }} transition-all">
-            <i class="fas fa-layer-group"></i>
-            <span>Active Catalog</span>
-            <span class="px-2 py-0.5 rounded-full text-xs font-bold {{ !$isArchived ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-dark-700 text-slate-700 dark:text-slate-300' }}">
-                {{ $activeCount }}
-            </span>
-        </a>
-        <a href="{{ route('products.index', ['archived' => 1]) }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold {{ $isArchived ? 'bg-amber-600 text-white shadow-sm shadow-amber-600/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-dark-800' }} transition-all">
-            <i class="fas fa-trash-can"></i>
-            <span>Archive / Trash</span>
-            <span class="px-2 py-0.5 rounded-full text-xs font-bold {{ $isArchived ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-dark-700 text-slate-700 dark:text-slate-300' }}">
-                {{ $archivedCount }}
+        <a href="{{ route('products.index') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-cyan-500 text-white shadow-sm shadow-cyan-500/30 transition-all">
+            <i class="fas fa-boxes-stacked"></i>
+            <span>All Products</span>
+            <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-white/20 text-white">
+                {{ $products->total() }}
             </span>
         </a>
         <a href="{{ route('inventory.index') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-dark-800 transition-colors">
@@ -45,18 +38,6 @@
             <span>Stock Audit Trail</span>
         </a>
     </div>
-
-    @if($isArchived)
-    <div class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 flex items-center justify-between gap-3 text-xs text-amber-800 dark:text-amber-300">
-        <div class="flex items-center gap-2.5">
-            <i class="fas fa-box-archive text-base text-amber-600 dark:text-amber-400"></i>
-            <span>You are viewing <strong>Archived / Trashed products</strong>. These items are hidden from active sales and stock receiving, but all past transaction histories are safe.</span>
-        </div>
-        <a href="{{ route('products.index') }}" class="px-3 py-1.5 rounded-lg bg-white dark:bg-dark-900 border border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 font-bold hover:bg-amber-100 transition-colors shrink-0">
-            Back to Active Catalog
-        </a>
-    </div>
-    @endif
 
     <!-- Filters & Search -->
     <div class="glass-card rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm">
@@ -173,15 +154,6 @@
 
                     @if(auth()->user()->isAdmin())
                     <div class="flex items-center gap-1.5">
-                        @if($isArchived)
-                        <form method="POST" action="{{ route('products.restore', $p->id) }}" class="inline">
-                            @csrf
-                            <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm transition-all" title="Restore to Active Catalog">
-                                <i class="fas fa-rotate-left"></i>
-                                <span>Restore</span>
-                            </button>
-                        </form>
-                        @else
                         <a href="{{ route('products.edit', $p->id) }}" class="p-2 rounded-xl bg-slate-100 dark:bg-dark-800 hover:bg-slate-200 dark:hover:bg-dark-700 text-slate-600 dark:text-slate-300 hover:text-cyan-500 transition-colors" title="Edit Product">
                             <i class="fas fa-pen-to-square"></i>
                         </a>
@@ -190,7 +162,6 @@
                             <i class="fas fa-trash-can text-xs"></i>
                             <span>Remove</span>
                         </button>
-                        @endif
                     </div>
                     @endif
                 </div>
@@ -200,10 +171,10 @@
         <div class="col-span-full p-12 glass-card rounded-2xl text-center text-slate-500">
             <i class="fas fa-box-open text-4xl mb-3 text-slate-400 dark:text-slate-600 block"></i>
             <p class="font-bold text-base text-slate-700 dark:text-slate-300">
-                {{ $isArchived ? 'No archived products in trash' : 'No physical products found' }}
+                No products found
             </p>
             <p class="text-xs text-slate-500 mt-1">
-                {{ $isArchived ? 'When you delete a product, it moves here safely so historical orders stay intact.' : 'Try resetting your filter parameters or search terms.' }}
+                Try resetting your filter parameters or search terms.
             </p>
         </div>
         @endforelse

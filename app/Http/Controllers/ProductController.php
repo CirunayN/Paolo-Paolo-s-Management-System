@@ -15,10 +15,7 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $isArchived = $request->boolean('archived');
-        $query = $isArchived
-            ? Product::onlyTrashed()->with(['category', 'inventory'])
-            : Product::with(['category', 'inventory']);
+        $query = Product::with(['category', 'inventory']);
 
         if ($request->filled('search')) {
             $s = $request->search;
@@ -41,12 +38,9 @@ class ProductController extends Controller
         // Paginate at 8 items per page so pagination controls and numbers are clearly visible and usable
         $products = $query->orderBy('id', 'desc')->paginate(8)->withQueryString();
         $categories = Category::orderBy('name')->get();
-        $brands = Product::withTrashed()->whereNotNull('vehicle_brand')->where('vehicle_brand', '!=', '')->distinct()->pluck('vehicle_brand');
+        $brands = Product::whereNotNull('vehicle_brand')->where('vehicle_brand', '!=', '')->distinct()->pluck('vehicle_brand');
 
-        $activeCount = Product::count();
-        $archivedCount = Product::onlyTrashed()->count();
-
-        return view('products.index', compact('products', 'categories', 'brands', 'isArchived', 'activeCount', 'archivedCount'));
+        return view('products.index', compact('products', 'categories', 'brands'));
     }
 
     public function show(Product $product)

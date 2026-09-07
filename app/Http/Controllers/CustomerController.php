@@ -11,12 +11,7 @@ class CustomerController extends Controller
 {
     public function index(Request $request)
     {
-        $isArchived = $request->boolean('archived');
-        
-        $activeCount = Customer::count();
-        $archivedCount = Customer::onlyTrashed()->count();
-
-        $query = $isArchived ? Customer::onlyTrashed()->withCount('orders') : Customer::withCount('orders');
+        $query = Customer::withCount('orders');
 
         if ($request->filled('search')) {
             $s = $request->search;
@@ -30,7 +25,7 @@ class CustomerController extends Controller
         }
 
         $customers = $query->latest()->paginate(12)->withQueryString();
-        return view('customers.index', compact('customers', 'activeCount', 'archivedCount', 'isArchived'));
+        return view('customers.index', compact('customers'));
     }
 
     public function orders(Request $request, Customer $customer)

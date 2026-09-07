@@ -33,41 +33,6 @@
         </form>
     </div>
 
-    <!-- Tabs Navigation: Active vs Archive/Trash -->
-    <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
-        <div class="flex items-center gap-2">
-            <a href="{{ route('customers.index') }}" 
-               class="px-4 py-2 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition-all {{ !$isArchived ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/20' : 'bg-slate-100 dark:bg-dark-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white' }}">
-                <i class="fas fa-users"></i>
-                <span>Active Clients</span>
-                <span class="px-2 py-0.5 rounded-full text-[11px] font-bold {{ !$isArchived ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-dark-700 text-slate-700 dark:text-slate-300' }}">
-                    {{ $activeCount }}
-                </span>
-            </a>
-            <a href="{{ route('customers.index', ['archived' => 1]) }}" 
-               class="px-4 py-2 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 transition-all {{ $isArchived ? 'bg-rose-600 text-white shadow-md shadow-rose-600/20' : 'bg-slate-100 dark:bg-dark-800 text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400' }}">
-                <i class="fas fa-box-archive"></i>
-                <span>Archive / Trash</span>
-                <span class="px-2 py-0.5 rounded-full text-[11px] font-bold {{ $isArchived ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-dark-700 text-slate-700 dark:text-slate-300' }}">
-                    {{ $archivedCount }}
-                </span>
-            </a>
-        </div>
-        <a href="{{ route('trash.index', ['tab' => 'customers']) }}" class="hidden sm:inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-cyan-500 transition-colors">
-            <i class="fas fa-arrow-up-right-from-square"></i> Open Central Trash Hub
-        </a>
-    </div>
-
-    @if($isArchived)
-    <div class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-between text-xs text-amber-700 dark:text-amber-300">
-        <div class="flex items-center gap-2.5">
-            <i class="fas fa-info-circle text-amber-500 text-base"></i>
-            <span><strong>Archive / Trash View:</strong> These customer profiles are hidden from the active list. Historical orders, transactions, and vehicle histories remain permanently intact. Click <strong>"Restore"</strong> to return a customer to the active directory.</span>
-        </div>
-        <a href="{{ route('customers.index') }}" class="font-bold underline hover:opacity-80">Exit Trash</a>
-    </div>
-    @endif
-
     <!-- Customer Cards Grid (Clickable to view Order History) -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" data-auto-animate>
         @forelse($customers as $c)
@@ -117,15 +82,6 @@
 
                 @if(auth()->user()->isAdmin())
                 <div class="flex items-center gap-2" onclick="event.stopPropagation()">
-                    @if($isArchived)
-                    <form method="POST" action="{{ route('customers.restore', $c->id) }}" class="inline">
-                        @csrf
-                        <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm transition-all" title="Restore Customer Profile">
-                            <i class="fas fa-rotate-left"></i>
-                            <span>Restore</span>
-                        </button>
-                    </form>
-                    @else
                     <button type="button" onclick="editCustomer({{ json_encode($c) }})" class="p-2 rounded-lg bg-slate-100 dark:bg-dark-800 hover:bg-slate-200 dark:hover:bg-dark-700 text-slate-600 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors" title="Edit Customer">
                         <i class="fas fa-pen-to-square"></i>
                     </button>
@@ -134,20 +90,15 @@
                         <i class="fas fa-trash-can text-xs"></i>
                         <span>Remove</span>
                     </button>
-                    @endif
                 </div>
                 @endif
             </div>
         </div>
         @empty
         <div class="col-span-full p-12 glass-card rounded-2xl text-center text-slate-500">
-            <i class="fas {{ $isArchived ? 'fa-box-archive' : 'fa-user-group' }} text-4xl mb-3 text-slate-400 dark:text-slate-600 block"></i>
-            <p class="font-bold text-base text-slate-700 dark:text-slate-300">
-                {{ $isArchived ? 'No archived customer profiles in trash' : 'No customer profiles found' }}
-            </p>
-            <p class="text-xs text-slate-500 mt-1">
-                {{ $isArchived ? 'When a customer is removed, it moves here safely preserving all past order history.' : 'Add client records to track vehicle models and order histories.' }}
-            </p>
+            <i class="fas fa-user-group text-4xl mb-3 text-slate-400 dark:text-slate-600 block"></i>
+            <p class="font-bold text-base text-slate-700 dark:text-slate-300">No customer profiles found</p>
+            <p class="text-xs text-slate-500 mt-1">Add client records to track vehicle models and order histories.</p>
         </div>
         @endforelse
     </div>
