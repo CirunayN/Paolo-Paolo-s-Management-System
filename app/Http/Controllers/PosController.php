@@ -79,7 +79,7 @@ class PosController extends Controller
                         'contact_number' => $customerPhone ?: null,
                         'vehicle_make_model' => $vehicleModel ?: null,
                         'plate_number' => $plateNumber ?: null,
-                        'address' => 'Davao City',
+                        'address' => null,
                     ]);
                 } else {
                     if ($vehicleModel && !$existingCust->vehicle_make_model) {
