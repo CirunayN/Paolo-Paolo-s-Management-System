@@ -256,14 +256,13 @@
                                         class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-500/25 border border-amber-300 dark:border-amber-500/30 text-xs font-bold transition-colors" 
                                         title="Restore Database to this state">
                                         <i class="fas fa-rotate-left"></i> Restore
+                                    <button type="button" 
+                                        onclick="openRemoveBackupModal('{{ $file['name'] }}', '{{ route('backup.destroy', $file['name']) }}')"
+                                        class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-dark-800 hover:bg-rose-100 dark:hover:bg-rose-950/40 text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 text-xs font-bold transition-colors" 
+                                        title="Remove Backup File">
+                                        <i class="fas fa-trash-can text-xs"></i>
+                                        <span>Remove</span>
                                     </button>
-                                    <form method="POST" action="{{ route('backup.destroy', $file['name']) }}" class="inline" onsubmit="return confirm('Permanently delete backup {{ $file['name'] }}?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="p-1.5 rounded-lg bg-slate-100 dark:bg-dark-800 hover:bg-rose-100 dark:hover:bg-rose-950/40 text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 text-xs transition-colors" title="Delete Archive">
-                                            <i class="fas fa-trash-can"></i>
-                                        </button>
-                                    </form>
                                 </td>
                             </tr>
                             @empty
@@ -484,5 +483,60 @@ function openFolderInExplorer() {
         btn.innerHTML = originalHtml;
     });
 }
+
+function openRemoveBackupModal(filename, actionUrl) {
+    document.getElementById('removeBackupFilename').innerText = filename;
+    document.getElementById('removeBackupForm').action = actionUrl;
+    const modal = document.getElementById('removeBackupModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function closeRemoveBackupModal() {
+    const modal = document.getElementById('removeBackupModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
 </script>
+
+<!-- CONFIRMATION MODAL: Remove Database Backup File -->
+<div id="removeBackupModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
+        <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-rose-500/10 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center text-xl shrink-0 border border-rose-500/20">
+                <i class="fas fa-trash-can"></i>
+            </div>
+            <div class="space-y-1">
+                <h3 class="text-lg font-bold font-display text-slate-900 dark:text-white">Remove Database Backup</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    Permanently delete backup file from disk
+                </p>
+            </div>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-slate-800 space-y-1">
+            <div class="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Target Backup File:</div>
+            <div class="text-xs font-mono font-bold text-rose-500 break-all" id="removeBackupFilename">filename.sql</div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-rose-50/70 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/50 text-[11px] text-rose-700 dark:text-rose-300 flex items-start gap-2">
+            <i class="fas fa-triangle-exclamation text-rose-500 mt-0.5"></i>
+            <span><strong>Permanent Action:</strong> This backup archive will be permanently deleted from your backup drive. This action cannot be undone.</span>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+            <button type="button" onclick="closeRemoveBackupModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-dark-800 text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-200 dark:hover:bg-dark-700 transition-colors cursor-pointer">
+                Cancel / Keep
+            </button>
+            <form id="removeBackupForm" method="POST" action="" class="inline">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-bold text-xs shadow-lg shadow-rose-500/20 transition-all cursor-pointer flex items-center gap-1.5">
+                    <i class="fas fa-trash-can"></i>
+                    <span>Remove Backup</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection

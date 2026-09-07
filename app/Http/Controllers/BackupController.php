@@ -194,16 +194,23 @@ class BackupController extends Controller
 
     public function destroy(string $filename)
     {
+        $cleanFilename = basename($filename);
         $settings = BackupSetting::getSettings();
         $backupDir = $this->getBackupDirectory($settings);
-        $fullPath = rtrim($backupDir, '\\/') . DIRECTORY_SEPARATOR . basename($filename);
+        $fullPath = rtrim($backupDir, '\\/') . DIRECTORY_SEPARATOR . $cleanFilename;
 
         if (File::exists($fullPath)) {
-            File::delete($fullPath);
-            return redirect()->route('backup.index')->with('success', "Backup file '{$filename}' deleted.");
+            @File::delete($fullPath);
+            return redirect()->route('backup.index')->with('success', "Backup file '{$cleanFilename}' removed successfully.");
         }
 
-        return redirect()->route('backup.index')->with('error', 'Backup file not found.');
+        $fallbackPath = storage_path('app/backups/' . $cleanFilename);
+        if (File::exists($fallbackPath)) {
+            @File::delete($fallbackPath);
+            return redirect()->route('backup.index')->with('success', "Backup file '{$cleanFilename}' removed successfully.");
+        }
+
+        return redirect()->route('backup.index')->with('error', "Backup file '{$cleanFilename}' not found.");
     }
 
     public function restore(string $filename)
