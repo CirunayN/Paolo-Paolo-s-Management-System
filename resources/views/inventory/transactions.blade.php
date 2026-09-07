@@ -7,7 +7,6 @@
             <h2 class="text-2xl font-bold font-display text-slate-900 dark:text-white flex items-center gap-2.5">
                 <i class="fas fa-clock-rotate-left text-cyan-500"></i> Stock Movement Audit Trail
             </h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Chronological ledger of stock deliveries, POS sales deductions, and damage/loss adjustments</p>
         </div>
     </div>
 

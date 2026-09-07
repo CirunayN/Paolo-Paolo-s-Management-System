@@ -13,7 +13,6 @@
                 </div>
                 <div>
                     <h1 class="text-2xl font-bold font-display text-slate-900 dark:text-white">Trash / Archive Manager</h1>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Safely review and restore removed products and customer records</p>
                 </div>
             </div>
         </div>
@@ -25,21 +24,6 @@
             <a href="{{ route('customers.index') }}" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-dark-800 hover:bg-slate-200 dark:hover:bg-dark-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-colors">
                 <i class="fas fa-id-card mr-1.5"></i> Back to Customers
             </a>
-        </div>
-    </div>
-
-    <!-- Safety Banner -->
-    <div class="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/25 flex items-start gap-3.5">
-        <div class="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 flex items-center justify-center text-sm shrink-0 mt-0.5">
-            <i class="fas fa-shield-halved"></i>
-        </div>
-        <div class="text-xs">
-            <div class="font-bold text-slate-900 dark:text-white text-sm">Safe Data Retention (Soft Deletes Active)</div>
-            <p class="text-slate-600 dark:text-slate-300 mt-0.5">
-                When products or customer records are removed, they are safely preserved in this archive. 
-                <strong>Historical orders, customer sales receipts, financial summaries, and inventory logs remain 100% intact and linked</strong>. 
-                Clicking <span class="font-bold text-emerald-600 dark:text-emerald-400">"Restore"</span> immediately reactivates the record.
-            </p>
         </div>
     </div>
 

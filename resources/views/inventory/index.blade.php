@@ -8,7 +8,6 @@
             <h2 class="text-2xl font-bold font-display text-slate-900 dark:text-white flex items-center gap-2.5">
                 <i class="fas fa-clipboard-check text-cyan-500"></i> Stock Adjustments &amp; Discrepancies
             </h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Audit physical counts, record damage/loss write-offs, and monitor reorder levels</p>
         </div>
         <div class="flex items-center gap-3">
             <a href="{{ route('stock-in.create') }}" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-bold shadow-lg shadow-cyan-500/20 transition-all">
