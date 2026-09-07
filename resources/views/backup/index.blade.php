@@ -28,7 +28,6 @@
                     <h3 class="text-base font-bold font-display text-slate-900 dark:text-white flex items-center gap-2">
                         <i class="fas fa-gear text-cyan-500"></i> Backup Configuration
                     </h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Configure manual vs automatic schedules</p>
                 </div>
 
                 <form method="POST" action="{{ route('backup.settings') }}" enctype="multipart/form-data" class="space-y-4 text-sm">
@@ -73,7 +72,6 @@
                             <option value="1_year" {{ $settings->retention === '1_year' ? 'selected' : '' }}>Delete backups older than 1 Year</option>
                             <option value="keep_all" {{ $settings->retention === 'keep_all' ? 'selected' : '' }}>Keep All (No auto-delete)</option>
                         </select>
-                        <p class="text-[11px] text-slate-400 mt-1">Automatically cleans up old backups to save storage on your local drive.</p>
                     </div>
 
                     <!-- Storage Path Display & Explorer Action -->
@@ -89,7 +87,6 @@
                                 <span>Open in Explorer</span>
                             </button>
                         </div>
-                        <p class="text-[11px] text-slate-400 mt-1.5">Type or paste any target folder path, or click <strong>Open in Explorer</strong> to view it.</p>
                     </div>
 
                     <!-- GOOGLE DRIVE ONLINE CLOUD BACKUP SECTION -->
@@ -210,7 +207,7 @@
                         <h3 class="text-base font-bold font-display text-slate-900 dark:text-white flex items-center gap-2">
                             <i class="fas fa-clock-rotate-left text-cyan-500"></i> Available Backups on E: Drive
                         </h3>
-                        <p class="text-xs text-slate-500 dark:text-slate-400">{{ count($files) }} backup archive(s) found</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">{{ count($files) }} backup found</p>
                     </div>
                     @if($settings->last_backup_at)
                     <span class="text-xs text-slate-500 dark:text-slate-400">
@@ -526,7 +523,7 @@ function closeRemoveBackupModal() {
 
         <div class="flex items-center justify-end gap-3 pt-2">
             <button type="button" onclick="closeRemoveBackupModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-dark-800 text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-200 dark:hover:bg-dark-700 transition-colors cursor-pointer">
-                Cancel / Keep
+                Cancel
             </button>
             <form id="removeBackupForm" method="POST" action="" class="inline">
                 @csrf

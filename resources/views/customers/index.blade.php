@@ -429,7 +429,7 @@ function closeRemoveCustomerModal() {
 
         <div class="flex items-center justify-end gap-3 pt-2">
             <button type="button" onclick="closeRemoveCustomerModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-dark-800 text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-200 dark:hover:bg-dark-700 transition-colors cursor-pointer">
-                Cancel / Keep
+                Cancel
             </button>
             <form id="removeCustForm" method="POST" action="" class="inline">
                 @csrf
