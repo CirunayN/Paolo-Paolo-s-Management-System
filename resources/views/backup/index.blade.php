@@ -31,7 +31,7 @@
                     <p class="text-xs text-slate-500 dark:text-slate-400">Configure manual vs automatic schedules</p>
                 </div>
 
-                <form method="POST" action="{{ route('backup.settings') }}" class="space-y-4 text-sm">
+                <form method="POST" action="{{ route('backup.settings') }}" enctype="multipart/form-data" class="space-y-4 text-sm">
                     @csrf
 
                     <div>
@@ -73,7 +73,7 @@
                             <option value="1_year" {{ $settings->retention === '1_year' ? 'selected' : '' }}>Delete backups older than 1 Year</option>
                             <option value="keep_all" {{ $settings->retention === 'keep_all' ? 'selected' : '' }}>Keep All (No auto-delete)</option>
                         </select>
-                        <p class="text-[11px] text-slate-400 mt-1">Automatically cleans up old backups to save storage on your E: drive.</p>
+                        <p class="text-[11px] text-slate-400 mt-1">Automatically cleans up old backups to save storage on your local drive.</p>
                     </div>
 
                     <!-- Storage Path Display & Explorer Action -->
@@ -92,11 +92,87 @@
                         <p class="text-[11px] text-slate-400 mt-1.5">Type or paste any target folder path, or click <strong>Open in Explorer</strong> to view it.</p>
                     </div>
 
-                    <div class="pt-2">
-                        <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-slate-900 dark:bg-dark-700 hover:bg-cyan-600 dark:hover:bg-cyan-600 text-white font-bold text-xs transition-colors">
+                    <!-- GOOGLE DRIVE ONLINE CLOUD BACKUP SECTION -->
+                    <div class="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-3.5">
+                        <div class="flex items-center justify-between">
+                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                                <input type="checkbox" name="gdrive_enabled" value="1" {{ $settings->gdrive_enabled ? 'checked' : '' }}
+                                    class="w-4 h-4 rounded text-cyan-600 focus:ring-cyan-500 border-slate-300 dark:border-slate-700">
+                                <span class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                                    <i class="fab fa-google-drive text-emerald-500 text-sm"></i>
+                                    Google Drive Cloud Backup
+                                </span>
+                            </label>
+                            @php
+                                $hasCreds = \App\Services\GoogleDriveBackupService::isConfigured($settings);
+                            @endphp
+                            @if($hasCreds)
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                                <i class="fas fa-check-circle mr-0.5"></i> Connected
+                            </span>
+                            @else
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-200 dark:bg-dark-800 text-slate-500">
+                                Not Configured
+                            </span>
+                            @endif
+                        </div>
+
+                        <!-- Service Account Credentials JSON -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">
+                                Google Service Account Key (JSON)
+                            </label>
+                            <input type="file" name="gdrive_credentials_file" accept=".json"
+                                class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-cyan-50 file:text-cyan-700 dark:file:bg-cyan-950/40 dark:file:text-cyan-300 hover:file:bg-cyan-100 cursor-pointer">
+                            <p class="text-[10px] text-slate-400 mt-1">
+                                Upload your Google Cloud service account <code class="font-mono text-cyan-600">credentials.json</code> file.
+                            </p>
+                        </div>
+
+                        <!-- Target Folder ID -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">
+                                Google Drive Folder ID <span class="text-slate-400 font-normal">(optional)</span>
+                            </label>
+                            <input type="text" name="gdrive_folder_id" value="{{ $settings->gdrive_folder_id }}" placeholder="e.g. 1AbCdEfGhIjKlMnOpQrStUvWxYz"
+                                class="w-full py-2 px-3 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:ring-1 focus:ring-cyan-500">
+                            <p class="text-[10px] text-slate-400 mt-1">
+                                Found in your Google Drive URL: <code class="font-mono text-cyan-600">drive.google.com/drive/folders/<strong>[FOLDER_ID]</strong></code>. Share this folder with your service account email as Editor.
+                            </p>
+                        </div>
+
+                        <!-- Auto Upload on Creation -->
+                        <div class="pt-1">
+                            <label class="flex items-center gap-2 cursor-pointer select-none">
+                                <input type="checkbox" name="gdrive_auto_upload" value="1" {{ $settings->gdrive_auto_upload ? 'checked' : '' }}
+                                    class="w-4 h-4 rounded text-cyan-600 focus:ring-cyan-500 border-slate-300 dark:border-slate-700">
+                                <span class="text-xs font-medium text-slate-700 dark:text-slate-300">
+                                    Automatically upload every new backup to Google Drive
+                                </span>
+                            </label>
+                        </div>
+
+                        @if($settings->last_gdrive_upload_at)
+                        <div class="text-[11px] text-slate-400">
+                            <i class="fas fa-cloud-arrow-up text-emerald-500 mr-1"></i> Last Google Drive upload: <strong>{{ $settings->last_gdrive_upload_at->format('M d, Y h:i A') }}</strong>
+                        </div>
+                        @endif
+                    </div>
+
+                    <div class="pt-2 flex items-center gap-2">
+                        <button type="submit" class="flex-1 py-2.5 px-4 rounded-xl bg-slate-900 dark:bg-dark-700 hover:bg-cyan-600 dark:hover:bg-cyan-600 text-white font-bold text-xs transition-colors">
                             Save Configuration
                         </button>
                     </div>
+                </form>
+
+                <!-- Test Google Drive Connection Button -->
+                <form method="POST" action="{{ route('backup.gdrive-test') }}" class="pt-1">
+                    @csrf
+                    <button type="submit" class="w-full py-2 px-3 rounded-xl border border-emerald-500/40 hover:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors">
+                        <i class="fab fa-google-drive"></i>
+                        <span>Test Google Drive Connection</span>
+                    </button>
                 </form>
             </div>
 
@@ -169,6 +245,12 @@
                                     <a href="{{ route('backup.download', $file['name']) }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-cyan-50 dark:bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-100 dark:hover:bg-cyan-500/25 border border-cyan-300 dark:border-cyan-500/30 text-xs font-bold transition-colors" title="Download to PC">
                                         <i class="fas fa-download"></i> Download
                                     </a>
+                                    <form method="POST" action="{{ route('backup.gdrive-upload', $file['name']) }}" class="inline">
+                                        @csrf
+                                        <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/25 border border-emerald-300 dark:border-emerald-500/30 text-xs font-bold transition-colors" title="Upload this backup to Google Drive">
+                                            <i class="fab fa-google-drive"></i> Drive
+                                        </button>
+                                    </form>
                                     <button type="button" 
                                         onclick="openRestoreModal('{{ $file['name'] }}', '{{ route('backup.restore', $file['name']) }}')"
                                         class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-500/25 border border-amber-300 dark:border-amber-500/30 text-xs font-bold transition-colors" 

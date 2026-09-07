@@ -122,7 +122,7 @@ class DatabaseSeeder extends Seeder
         // 5. Physical Products Catalog ONLY (with multi-image arrays)
         $productsData = [
             [
-                'product_code' => 'MAT-TY-FORT',
+                'product_code' => 'PRD-0001',
                 'name' => 'Toyota Fortuner 3-Row TPE Deep Dish Matting (2016-2024)',
                 'category_id' => $categories['deep-dish-matting'],
                 'vehicle_brand' => 'Toyota',
@@ -138,7 +138,7 @@ class DatabaseSeeder extends Seeder
                 'stock' => 18,
             ],
             [
-                'product_code' => 'MAT-TY-HLX',
+                'product_code' => 'PRD-0002',
                 'name' => 'Toyota Hilux Double Cab Deep Dish Matting (2016-2024)',
                 'category_id' => $categories['deep-dish-matting'],
                 'vehicle_brand' => 'Toyota',
@@ -154,7 +154,7 @@ class DatabaseSeeder extends Seeder
                 'stock' => 14,
             ],
             [
-                'product_code' => 'MAT-TY-VIOS',
+                'product_code' => 'PRD-0003',
                 'name' => 'Toyota Vios 5D Diamond Stitched Matting (2018-2024)',
                 'category_id' => $categories['5d-diamond-matting'],
                 'vehicle_brand' => 'Toyota',
@@ -170,7 +170,7 @@ class DatabaseSeeder extends Seeder
                 'stock' => 12,
             ],
             [
-                'product_code' => 'MAT-MB-MONT',
+                'product_code' => 'PRD-0004',
                 'name' => 'Mitsubishi Montero Sport Deep Dish Matting 3-Rows (2016-2024)',
                 'category_id' => $categories['deep-dish-matting'],
                 'vehicle_brand' => 'Mitsubishi',
@@ -186,7 +186,7 @@ class DatabaseSeeder extends Seeder
                 'stock' => 15,
             ],
             [
-                'product_code' => 'MAT-FD-RNGR',
+                'product_code' => 'PRD-0005',
                 'name' => 'Ford Ranger Next-Gen / Everest Deep Dish Matting (2022-2024)',
                 'category_id' => $categories['deep-dish-matting'],
                 'vehicle_brand' => 'Ford',
@@ -202,7 +202,7 @@ class DatabaseSeeder extends Seeder
                 'stock' => 9,
             ],
             [
-                'product_code' => 'MAT-HD-CIV',
+                'product_code' => 'PRD-0006',
                 'name' => 'Honda Civic FE 5D Custom Floor Matting (2022-2024)',
                 'category_id' => $categories['5d-diamond-matting'],
                 'vehicle_brand' => 'Honda',
@@ -218,7 +218,7 @@ class DatabaseSeeder extends Seeder
                 'stock' => 7,
             ],
             [
-                'product_code' => 'MAT-COIL-ROLL',
+                'product_code' => 'PRD-0007',
                 'name' => 'Universal Heavy Duty Coil / Noodle Mat Roll (1.2m x 9m)',
                 'category_id' => $categories['coil-rubber-mats'],
                 'vehicle_brand' => 'Universal',
@@ -234,7 +234,7 @@ class DatabaseSeeder extends Seeder
                 'stock' => 6,
             ],
             [
-                'product_code' => 'MAT-MC-NMAX',
+                'product_code' => 'PRD-0008',
                 'name' => 'Yamaha NMAX V2 / V3 Rubber Footboard Matting',
                 'category_id' => $categories['motorcycle-matting'],
                 'vehicle_brand' => 'Yamaha',
@@ -250,7 +250,7 @@ class DatabaseSeeder extends Seeder
                 'stock' => 22,
             ],
             [
-                'product_code' => 'MAT-MC-ADV',
+                'product_code' => 'PRD-0009',
                 'name' => 'Honda ADV 150 / 160 Stepboard Matting',
                 'category_id' => $categories['motorcycle-matting'],
                 'vehicle_brand' => 'Honda',
@@ -266,7 +266,7 @@ class DatabaseSeeder extends Seeder
                 'stock' => 19,
             ],
             [
-                'product_code' => 'ACC-TRK-FORT',
+                'product_code' => 'PRD-0010',
                 'name' => 'Fortuner OEM Style Trunk Cargo Tray Liner',
                 'category_id' => $categories['trunk-cargo-trays'],
                 'vehicle_brand' => 'Toyota',
@@ -282,7 +282,7 @@ class DatabaseSeeder extends Seeder
                 'stock' => 11,
             ],
             [
-                'product_code' => 'ACC-ELEC-DASH',
+                'product_code' => 'PRD-0011',
                 'name' => 'Dual Lens 4K Ultra HD Car Dashcam (Front + Rear)',
                 'category_id' => $categories['interior-accessories'],
                 'vehicle_brand' => 'Universal',
@@ -298,7 +298,7 @@ class DatabaseSeeder extends Seeder
                 'stock' => 8,
             ],
             [
-                'product_code' => 'ACC-CARE-MCR',
+                'product_code' => 'PRD-0012',
                 'name' => 'Paolo Paolo Pro Microfiber & Mat Detailing Kit (5-in-1)',
                 'category_id' => $categories['car-care-detailing'],
                 'vehicle_brand' => 'Universal',

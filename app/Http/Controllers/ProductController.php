@@ -15,7 +15,10 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'inventory']);
+        $isArchived = $request->boolean('archived');
+        $query = $isArchived
+            ? Product::onlyTrashed()->with(['category', 'inventory'])
+            : Product::with(['category', 'inventory']);
 
         if ($request->filled('search')) {
             $s = $request->search;
@@ -35,11 +38,15 @@ class ProductController extends Controller
             $query->where('vehicle_brand', $request->vehicle_brand);
         }
 
-        $products = $query->orderBy('name')->paginate(12)->withQueryString();
+        // Paginate at 8 items per page so pagination controls and numbers are clearly visible and usable
+        $products = $query->orderBy('id', 'desc')->paginate(8)->withQueryString();
         $categories = Category::orderBy('name')->get();
-        $brands = Product::whereNotNull('vehicle_brand')->where('vehicle_brand', '!=', '')->distinct()->pluck('vehicle_brand');
+        $brands = Product::withTrashed()->whereNotNull('vehicle_brand')->where('vehicle_brand', '!=', '')->distinct()->pluck('vehicle_brand');
 
-        return view('products.index', compact('products', 'categories', 'brands'));
+        $activeCount = Product::count();
+        $archivedCount = Product::onlyTrashed()->count();
+
+        return view('products.index', compact('products', 'categories', 'brands', 'isArchived', 'activeCount', 'archivedCount'));
     }
 
     public function show(Product $product)
@@ -69,13 +76,14 @@ class ProductController extends Controller
         $categories = Category::orderBy('name')->get();
         $brands = self::getVehicleBrands();
         $unitsOfMeasure = self::getUnitsOfMeasure();
-        return view('products.create', compact('categories', 'brands', 'unitsOfMeasure'));
+        $suggestedCode = Product::generateNextProductCode();
+        return view('products.create', compact('categories', 'brands', 'unitsOfMeasure', 'suggestedCode'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'product_code' => 'required|string|max:50|unique:products,product_code',
+            'product_code' => 'nullable|string|max:50|unique:products,product_code',
             'name' => 'required|string|max:150',
             'category_id' => 'required|exists:categories,id',
             'vehicle_brand' => 'nullable|string|max:50',
@@ -90,6 +98,8 @@ class ProductController extends Controller
             'images' => 'nullable|array|max:5',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
         ]);
+
+        $code = !empty($validated['product_code']) ? strtoupper(trim($validated['product_code'])) : Product::generateNextProductCode();
 
         $imagePaths = [];
         if ($request->hasFile('images')) {
@@ -106,7 +116,7 @@ class ProductController extends Controller
         }
 
         $product = Product::create([
-            'product_code' => strtoupper($validated['product_code']),
+            'product_code' => $code,
             'name' => $validated['name'],
             'category_id' => $validated['category_id'],
             'vehicle_brand' => $validated['vehicle_brand'] ?? 'Universal',
@@ -159,16 +169,7 @@ class ProductController extends Controller
             'stock_alert_level' => 'nullable|integer|min:0',
         ]);
 
-        $code = $validated['product_code'] ?? null;
-        if (empty($code)) {
-            $cat = Category::find($validated['category_id']);
-            $catPrefix = $cat ? strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $cat->name), 0, 3)) : 'PRD';
-            do {
-                $code = $catPrefix . '-' . strtoupper(Str::random(5));
-            } while (Product::where('product_code', $code)->exists());
-        } else {
-            $code = strtoupper($code);
-        }
+        $code = !empty($validated['product_code']) ? strtoupper(trim($validated['product_code'])) : Product::generateNextProductCode();
 
         $product = Product::create([
             'product_code' => $code,
@@ -308,7 +309,17 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         $name = $product->name;
+        $code = $product->product_code;
         $product->delete();
-        return redirect()->route('products.index')->with('success', "Product '{$name}' deleted successfully!");
+        return redirect()->route('products.index')->with('success', "Product '{$name}' [{$code}] moved to Archive / Trash successfully.");
+    }
+
+    public function restore($id)
+    {
+        $product = Product::onlyTrashed()->findOrFail($id);
+        $name = $product->name;
+        $code = $product->product_code;
+        $product->restore();
+        return redirect()->route('products.index', ['archived' => 1])->with('success', "Product '{$name}' [{$code}] restored back to active catalog.");
     }
 }

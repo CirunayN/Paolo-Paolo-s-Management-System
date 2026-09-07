@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use App\Models\BackupSetting;
+use App\Services\GoogleDriveBackupService;
 use PDO;
 
 class BackupController extends Controller
@@ -87,7 +88,21 @@ class BackupController extends Controller
 
             $this->cleanupOldBackups($settings, $backupDir);
 
-            return redirect()->route('backup.index')->with('success', "Database backup '{$filename}' created successfully in {$backupDir}!");
+            $msg = "Database backup '{$filename}' created successfully in {$backupDir}!";
+
+            // Auto-upload to Google Drive if configured
+            if ($settings->gdrive_enabled && $settings->gdrive_auto_upload) {
+                try {
+                    $uploadRes = GoogleDriveBackupService::uploadBackup($fullPath, $settings);
+                    if ($uploadRes['success']) {
+                        $msg .= " Also uploaded to Google Drive!";
+                    }
+                } catch (\Exception $e) {
+                    $msg .= " (Note: Google Drive upload skipped: {$e->getMessage()})";
+                }
+            }
+
+            return redirect()->route('backup.index')->with('success', $msg);
         }
 
         return redirect()->route('backup.index')->with('error', "Failed to create database backup. Please check drive permissions.");
@@ -100,17 +115,68 @@ class BackupController extends Controller
             'frequency' => 'required|in:1_day,1_week,1_month',
             'retention' => 'required|in:1_week,1_month,1_year,keep_all',
             'storage_path' => 'nullable|string|max:255',
+            'gdrive_enabled' => 'nullable|boolean',
+            'gdrive_folder_id' => 'nullable|string|max:255',
+            'gdrive_auto_upload' => 'nullable|boolean',
+            'gdrive_credentials_file' => 'nullable|file|max:2048',
         ]);
 
         $settings = BackupSetting::getSettings();
+
+        $credPath = $settings->gdrive_credentials_path;
+        if ($request->hasFile('gdrive_credentials_file')) {
+            $uploadedJson = $request->file('gdrive_credentials_file');
+            $targetDir = storage_path('app');
+            if (!File::exists($targetDir)) {
+                File::makeDirectory($targetDir, 0777, true, true);
+            }
+            $targetPath = $targetDir . DIRECTORY_SEPARATOR . 'google-drive-credentials.json';
+            $uploadedJson->move($targetDir, 'google-drive-credentials.json');
+            $credPath = $targetPath;
+        }
+
         $settings->update([
             'backup_mode' => $validated['backup_mode'],
             'frequency' => $validated['frequency'],
             'retention' => $validated['retention'],
             'storage_path' => !empty($validated['storage_path']) ? $validated['storage_path'] : $this->defaultBackupDir,
+            'gdrive_enabled' => $request->boolean('gdrive_enabled'),
+            'gdrive_folder_id' => $request->input('gdrive_folder_id'),
+            'gdrive_auto_upload' => $request->boolean('gdrive_auto_upload'),
+            'gdrive_credentials_path' => $credPath,
         ]);
 
-        return redirect()->route('backup.index')->with('success', "Backup configuration updated successfully!");
+        return redirect()->route('backup.index')->with('success', "Backup & Google Drive configuration updated successfully!");
+    }
+
+    public function uploadToGoogleDrive(string $filename)
+    {
+        $settings = BackupSetting::getSettings();
+        $backupDir = $this->getBackupDirectory($settings);
+        $fullPath = rtrim($backupDir, '\\/') . DIRECTORY_SEPARATOR . basename($filename);
+
+        if (!File::exists($fullPath)) {
+            return redirect()->route('backup.index')->with('error', "Backup file '{$filename}' not found on local disk.");
+        }
+
+        try {
+            $result = GoogleDriveBackupService::uploadBackup($fullPath, $settings);
+            return redirect()->route('backup.index')->with('success', $result['message']);
+        } catch (\Exception $e) {
+            return redirect()->route('backup.index')->with('error', "Google Drive Upload Failed: " . $e->getMessage());
+        }
+    }
+
+    public function testGoogleDrive()
+    {
+        $settings = BackupSetting::getSettings();
+        $result = GoogleDriveBackupService::testConnection($settings);
+
+        if ($result['success']) {
+            return redirect()->route('backup.index')->with('success', $result['message']);
+        }
+
+        return redirect()->route('backup.index')->with('error', $result['message']);
     }
 
     public function download(string $filename)

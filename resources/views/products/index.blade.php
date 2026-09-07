@@ -22,19 +22,41 @@
 
     <!-- Inventory Sub-Navigation Tabs -->
     <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 overflow-x-auto">
-        <a href="{{ route('products.index') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-cyan-500 text-white shadow-sm shadow-cyan-500/30">
+        <a href="{{ route('products.index') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold {{ !$isArchived ? 'bg-cyan-500 text-white shadow-sm shadow-cyan-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-dark-800' }} transition-all">
             <i class="fas fa-layer-group"></i>
-            <span>Catalog &amp; Specs</span>
+            <span>Active Catalog</span>
+            <span class="px-2 py-0.5 rounded-full text-xs font-bold {{ !$isArchived ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-dark-700 text-slate-700 dark:text-slate-300' }}">
+                {{ $activeCount }}
+            </span>
+        </a>
+        <a href="{{ route('products.index', ['archived' => 1]) }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold {{ $isArchived ? 'bg-amber-600 text-white shadow-sm shadow-amber-600/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-dark-800' }} transition-all">
+            <i class="fas fa-trash-can"></i>
+            <span>Archive / Trash</span>
+            <span class="px-2 py-0.5 rounded-full text-xs font-bold {{ $isArchived ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-dark-700 text-slate-700 dark:text-slate-300' }}">
+                {{ $archivedCount }}
+            </span>
         </a>
         <a href="{{ route('inventory.index') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-dark-800 transition-colors">
             <i class="fas fa-clipboard-check"></i>
-            <span>Stock Levels &amp; Discrepancies</span>
+            <span>Stock Levels</span>
         </a>
         <a href="{{ route('inventory.transactions') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-dark-800 transition-colors">
             <i class="fas fa-clock-rotate-left"></i>
             <span>Stock Audit Trail</span>
         </a>
     </div>
+
+    @if($isArchived)
+    <div class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 flex items-center justify-between gap-3 text-xs text-amber-800 dark:text-amber-300">
+        <div class="flex items-center gap-2.5">
+            <i class="fas fa-box-archive text-base text-amber-600 dark:text-amber-400"></i>
+            <span>You are viewing <strong>Archived / Trashed products</strong>. These items are hidden from active sales and stock receiving, but all past transaction histories are safe.</span>
+        </div>
+        <a href="{{ route('products.index') }}" class="px-3 py-1.5 rounded-lg bg-white dark:bg-dark-900 border border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 font-bold hover:bg-amber-100 transition-colors shrink-0">
+            Back to Active Catalog
+        </a>
+    </div>
+    @endif
 
     <!-- Filters & Search -->
     <div class="glass-card rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm">
@@ -151,16 +173,23 @@
 
                     @if(auth()->user()->isAdmin())
                     <div class="flex items-center gap-1.5">
+                        @if($isArchived)
+                        <form method="POST" action="{{ route('products.restore', $p->id) }}" class="inline">
+                            @csrf
+                            <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm transition-all" title="Restore to Active Catalog">
+                                <i class="fas fa-rotate-left"></i>
+                                <span>Restore</span>
+                            </button>
+                        </form>
+                        @else
                         <a href="{{ route('products.edit', $p->id) }}" class="p-2 rounded-xl bg-slate-100 dark:bg-dark-800 hover:bg-slate-200 dark:hover:bg-dark-700 text-slate-600 dark:text-slate-300 hover:text-cyan-500 transition-colors" title="Edit Product">
                             <i class="fas fa-pen-to-square"></i>
                         </a>
-                        <form method="POST" action="{{ route('products.destroy', $p->id) }}" class="inline" onsubmit="return confirm('Permanently delete {{ addslashes($p->name) }}?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="p-2 rounded-xl bg-slate-100 dark:bg-dark-800 hover:bg-rose-100 dark:hover:bg-rose-950/40 text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 transition-colors" title="Delete Product">
-                                <i class="fas fa-trash-can"></i>
-                            </button>
-                        </form>
+                        <button type="button" onclick="openDeleteModal('{{ $p->id }}', '{{ addslashes($p->name) }}', '{{ $p->product_code }}')"
+                            class="p-2 rounded-xl bg-slate-100 dark:bg-dark-800 hover:bg-rose-100 dark:hover:bg-rose-950/40 text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 transition-colors" title="Archive / Move to Trash">
+                            <i class="fas fa-trash-can"></i>
+                        </button>
+                        @endif
                     </div>
                     @endif
                 </div>
@@ -169,14 +198,18 @@
         @empty
         <div class="col-span-full p-12 glass-card rounded-2xl text-center text-slate-500">
             <i class="fas fa-box-open text-4xl mb-3 text-slate-400 dark:text-slate-600 block"></i>
-            <p class="font-bold text-base text-slate-700 dark:text-slate-300">No physical products found</p>
-            <p class="text-xs text-slate-500 mt-1">Try resetting your filter parameters or search terms.</p>
+            <p class="font-bold text-base text-slate-700 dark:text-slate-300">
+                {{ $isArchived ? 'No archived products in trash' : 'No physical products found' }}
+            </p>
+            <p class="text-xs text-slate-500 mt-1">
+                {{ $isArchived ? 'When you delete a product, it moves here safely so historical orders stay intact.' : 'Try resetting your filter parameters or search terms.' }}
+            </p>
         </div>
         @endforelse
     </div>
 
-    <div class="pt-2">
-        {{ $products->links() }}
+    <div class="pt-4">
+        {{ $products->links('vendor.pagination.custom') }}
     </div>
 </div>
 
@@ -271,5 +304,64 @@ function nextGalleryImage() {
     }
     updateGalleryDisplay();
 }
+
+// Delete Confirmation Modal
+function openDeleteModal(productId, productName, productCode) {
+    document.getElementById('deleteModalProdName').innerText = productName;
+    document.getElementById('deleteModalProdCode').innerText = productCode;
+    const form = document.getElementById('deleteProductForm');
+    form.action = `/products/${productId}`;
+
+    const modal = document.getElementById('deleteConfirmModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function closeDeleteModal() {
+    const modal = document.getElementById('deleteConfirmModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
 </script>
+
+<!-- MODAL: Clean Delete / Archive Confirmation Dialog -->
+<div id="deleteConfirmModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
+        <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-rose-500/10 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 flex items-center justify-center text-xl shrink-0 border border-rose-500/20">
+                <i class="fas fa-box-archive"></i>
+            </div>
+            <div class="space-y-1">
+                <h3 class="text-lg font-bold font-display text-slate-900 dark:text-white">Archive Product</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    Are you sure you want to move this item to Archive / Trash?
+                </p>
+            </div>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-slate-800 space-y-1">
+            <div class="text-xs font-bold text-slate-900 dark:text-white line-clamp-2" id="deleteModalProdName"></div>
+            <div class="text-[11px] font-mono text-cyan-600 dark:text-cyan-400 font-bold" id="deleteModalProdCode"></div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 text-[11px] text-blue-700 dark:text-blue-300 flex items-start gap-2">
+            <i class="fas fa-shield-check text-blue-500 mt-0.5"></i>
+            <span><strong>Safe Archiving:</strong> Historical orders, customer sales, and inventory logs will remain completely intact. You can restore this product at any time from the Trash tab.</span>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+            <button type="button" onclick="closeDeleteModal()" class="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-dark-800 text-slate-700 dark:text-slate-300 font-semibold text-xs hover:bg-slate-200 dark:hover:bg-dark-700 transition-colors cursor-pointer">
+                Cancel
+            </button>
+            <form id="deleteProductForm" method="POST" action="" class="inline">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-bold text-xs shadow-lg shadow-rose-500/20 transition-all cursor-pointer flex items-center gap-1.5">
+                    <i class="fas fa-trash-can"></i>
+                    <span>Confirm Archive</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection

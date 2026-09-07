@@ -19,11 +19,17 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <!-- SKU / Product Code -->
             <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                    Product Code / SKU <span class="text-rose-500">*</span>
-                </label>
-                <input type="text" name="product_code" value="{{ old('product_code') }}" required placeholder="e.g. MAT-TY-FORT-01"
-                    class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono uppercase text-sm focus:ring-1 focus:ring-cyan-500">
+                <div class="flex items-center justify-between mb-1.5">
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                        Product Code / SKU <span class="text-rose-500">*</span>
+                    </label>
+                    <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-lg border border-emerald-500/20">
+                        <i class="fas fa-magic text-[10px]"></i> Auto-Assigned
+                    </span>
+                </div>
+                <input type="text" name="product_code" value="{{ old('product_code', $suggestedCode) }}" placeholder="e.g. PRD-0013"
+                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono uppercase text-base font-bold focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Continuous sequential number assigned automatically.</p>
             </div>
 
             <!-- Product Name -->
@@ -32,7 +38,7 @@
                     Product Name <span class="text-rose-500">*</span>
                 </label>
                 <input type="text" name="name" value="{{ old('name') }}" required placeholder="e.g. Toyota Fortuner 3-Row Deep Dish Matting"
-                    class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm sm:text-base focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
             </div>
         </div>
 
@@ -47,7 +53,7 @@
                         <i class="fas fa-plus-circle"></i> + New Category
                     </button>
                 </div>
-                <select name="category_id" id="categorySelect" required class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                <select name="category_id" id="categorySelect" required class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
                     <option value="">Select Category</option>
                     @foreach($categories as $cat)
                     <option value="{{ $cat->id }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>
@@ -67,7 +73,7 @@
                         <i class="fas fa-plus-circle"></i> + New Brand
                     </button>
                 </div>
-                <select name="vehicle_brand" id="brandSelect" required class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                <select name="vehicle_brand" id="brandSelect" required class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
                     <option value="">Select Brand</option>
                     @foreach($brands as $brand)
                     <option value="{{ $brand }}" {{ old('vehicle_brand', 'Toyota') == $brand ? 'selected' : '' }}>
@@ -81,7 +87,7 @@
             <div>
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Compatible Model / Year</label>
                 <input type="text" name="vehicle_model" value="{{ old('vehicle_model') }}" placeholder="e.g. Fortuner 2016-2024"
-                    class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
             </div>
         </div>
 
@@ -90,7 +96,7 @@
             <div>
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Material Type</label>
                 <input type="text" name="material_type" value="{{ old('material_type') }}" placeholder="e.g. TPE Deep Dish, 5D Leatherette, PVC Coil"
-                    class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
             </div>
 
             <!-- Unit of Measure -->
@@ -103,7 +109,7 @@
                         <i class="fas fa-plus-circle"></i> + New Unit
                     </button>
                 </div>
-                <select name="unit_of_measure" id="uomSelect" required class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                <select name="unit_of_measure" id="uomSelect" required class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
                     <option value="">Select Unit</option>
                     @foreach($unitsOfMeasure as $uom)
                     <option value="{{ $uom }}" {{ old('unit_of_measure', 'Set') == $uom ? 'selected' : '' }}>
@@ -119,7 +125,7 @@
                     Low Stock Threshold <span class="text-rose-500">*</span>
                 </label>
                 <input type="number" name="stock_alert_level" value="{{ old('stock_alert_level', 4) }}" required min="0"
-                    class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm font-mono focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
             </div>
         </div>
 
@@ -130,7 +136,7 @@
                     Supplier Cost (₱) <span class="text-rose-500">*</span>
                 </label>
                 <input type="number" step="0.01" name="cost_price" value="{{ old('cost_price') }}" required placeholder="0.00"
-                    class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-sm focus:ring-1 focus:ring-cyan-500">
+                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-base font-bold focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
             </div>
 
             <!-- Retail Selling Price -->
@@ -139,7 +145,7 @@
                     Retail Selling Price (₱) <span class="text-rose-500">*</span>
                 </label>
                 <input type="number" step="0.01" name="unit_price" value="{{ old('unit_price') }}" required placeholder="0.00"
-                    class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-sm focus:ring-1 focus:ring-cyan-500">
+                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-base font-bold focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
             </div>
 
             <!-- Initial Stock on Hand -->
@@ -148,7 +154,7 @@
                     Initial Stock on Hand
                 </label>
                 <input type="number" step="0.01" name="initial_stock" value="{{ old('initial_stock', 0) }}" min="0"
-                    class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-sm focus:ring-1 focus:ring-cyan-500">
+                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-base focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
             </div>
         </div>
 

@@ -57,6 +57,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
         Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
         Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+        Route::post('/products/{id}/restore', [ProductController::class, 'restore'])->name('products.restore');
 
         // Inventory Stock Adjustment
         Route::post('/inventory/adjust/{inventory}', [InventoryController::class, 'adjust'])->name('inventory.adjust');
@@ -84,6 +85,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/backup/restore/{filename}', [BackupController::class, 'restore'])->name('backup.restore');
         Route::post('/backup/restore-upload', [BackupController::class, 'restoreFromUpload'])->name('backup.restore-upload');
         Route::post('/backup/open-explorer', [BackupController::class, 'openInExplorer'])->name('backup.open-explorer');
+        Route::post('/backup/gdrive-upload/{filename}', [BackupController::class, 'uploadToGoogleDrive'])->name('backup.gdrive-upload');
+        Route::post('/backup/gdrive-test', [BackupController::class, 'testGoogleDrive'])->name('backup.gdrive-test');
     });
 });
 

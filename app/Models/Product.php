@@ -5,9 +5,43 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
+
+    /**
+     * Generate the next continuous sequential product code (e.g. PRD-0001, PRD-0013)
+     * Checks both active and trashed products to prevent any code re-use.
+     */
+    public static function generateNextProductCode(): string
+    {
+        $allCodes = static::withTrashed()->pluck('product_code');
+        $maxNum = 0;
+
+        foreach ($allCodes as $code) {
+            if (preg_match('/^PRD-(\d+)$/i', trim($code), $matches)) {
+                $num = intval($matches[1]);
+                if ($num > $maxNum) {
+                    $maxNum = $num;
+                }
+            }
+        }
+
+        // If no PRD-XXXX format found, start from count + 1
+        if ($maxNum === 0) {
+            $maxNum = static::withTrashed()->count();
+        }
+
+        $nextNum = $maxNum + 1;
+        do {
+            $candidate = 'PRD-' . str_pad($nextNum, 4, '0', STR_PAD_LEFT);
+            $nextNum++;
+        } while (static::withTrashed()->where('product_code', $candidate)->exists());
+
+        return $candidate;
+    }
 
     protected $fillable = [
         'product_code',

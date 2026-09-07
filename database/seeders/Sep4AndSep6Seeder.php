@@ -42,7 +42,10 @@ class Sep4AndSep6Seeder extends Seeder
             ]
         );
 
-        $restockProducts = Product::whereIn('product_code', ['MAT-TY-FORT', 'MAT-TY-HLX', 'ACC-CARE-MCR'])->get();
+        $restockProducts = Product::whereIn('product_code', ['PRD-0001', 'PRD-0002', 'PRD-0012'])->get();
+        if ($restockProducts->isEmpty()) {
+            $restockProducts = Product::whereIn('product_code', ['MAT-TY-FORT', 'MAT-TY-HLX', 'ACC-CARE-MCR'])->get();
+        }
         $totalShipmentCost = 0;
         foreach ($restockProducts as $rProd) {
             $qty = 15;
@@ -291,7 +294,25 @@ class Sep4AndSep6Seeder extends Seeder
             $itemsToCreate = [];
 
             foreach ($ordData['items'] as $it) {
-                $prod = Product::where('product_code', $it['code'])->first();
+                $codeMap = [
+                    'MAT-TY-FORT' => 'PRD-0001',
+                    'MAT-TY-HLX' => 'PRD-0002',
+                    'MAT-TY-VIOS' => 'PRD-0003',
+                    'MAT-MB-MONT' => 'PRD-0004',
+                    'MAT-MIT-MON' => 'PRD-0004',
+                    'MAT-FD-RNGR' => 'PRD-0005',
+                    'MAT-FD-RAN' => 'PRD-0005',
+                    'MAT-HD-CIV' => 'PRD-0006',
+                    'MAT-HD-CIVIC' => 'PRD-0006',
+                    'MAT-COIL-ROLL' => 'PRD-0007',
+                    'MAT-MC-NMAX' => 'PRD-0008',
+                    'MAT-MC-ADV' => 'PRD-0009',
+                    'ACC-TRK-FORT' => 'PRD-0010',
+                    'ACC-ELEC-DASH' => 'PRD-0011',
+                    'ACC-CARE-MCR' => 'PRD-0012',
+                ];
+                $targetCode = $codeMap[$it['code']] ?? $it['code'];
+                $prod = Product::where('product_code', $targetCode)->first() ?? Product::where('product_code', $it['code'])->first();
                 if ($prod) {
                     $lineTotal = $it['qty'] * $prod->unit_price;
                     $subtotal += $lineTotal;

@@ -15,10 +15,18 @@ class BackupSetting extends Model
         'retention',
         'storage_path',
         'last_backup_at',
+        'gdrive_enabled',
+        'gdrive_folder_id',
+        'gdrive_credentials_path',
+        'gdrive_auto_upload',
+        'last_gdrive_upload_at',
     ];
 
     protected $casts = [
         'last_backup_at' => 'datetime',
+        'gdrive_enabled' => 'boolean',
+        'gdrive_auto_upload' => 'boolean',
+        'last_gdrive_upload_at' => 'datetime',
     ];
 
     public static function getSettings(): self

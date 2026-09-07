@@ -38,7 +38,7 @@
                     Product Code / SKU <span class="text-rose-500">*</span>
                 </label>
                 <input type="text" name="product_code" value="{{ old('product_code', $product->product_code) }}" required
-                    class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono uppercase text-sm focus:ring-1 focus:ring-cyan-500">
+                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono uppercase text-base font-bold focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
             </div>
 
             <div>
@@ -46,7 +46,7 @@
                     Product Name <span class="text-rose-500">*</span>
                 </label>
                 <input type="text" name="name" value="{{ old('name', $product->name) }}" required
-                    class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm sm:text-base focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
             </div>
         </div>
 
@@ -60,7 +60,7 @@
                         <i class="fas fa-plus-circle"></i> + New Category
                     </button>
                 </div>
-                <select name="category_id" id="categorySelect" required class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                <select name="category_id" id="categorySelect" required class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
                     @foreach($categories as $cat)
                     <option value="{{ $cat->id }}" {{ old('category_id', $product->category_id) == $cat->id ? 'selected' : '' }}>
                         {{ $cat->name }}
@@ -78,7 +78,7 @@
                         <i class="fas fa-plus-circle"></i> + New Brand
                     </button>
                 </div>
-                <select name="vehicle_brand" id="brandSelect" required class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                <select name="vehicle_brand" id="brandSelect" required class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
                     <option value="">Select Brand</option>
                     @foreach($brands as $brand)
                     <option value="{{ $brand }}" {{ old('vehicle_brand', $product->vehicle_brand) == $brand ? 'selected' : '' }}>
@@ -91,7 +91,7 @@
             <div>
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Compatible Model</label>
                 <input type="text" name="vehicle_model" value="{{ old('vehicle_model', $product->vehicle_model) }}"
-                    class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
             </div>
         </div>
 
@@ -99,7 +99,7 @@
             <div>
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Material Type</label>
                 <input type="text" name="material_type" value="{{ old('material_type', $product->material_type) }}"
-                    class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
             </div>
 
             <div>
@@ -111,7 +111,7 @@
                         <i class="fas fa-plus-circle"></i> + New Unit
                     </button>
                 </div>
-                <select name="unit_of_measure" id="uomSelect" required class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                <select name="unit_of_measure" id="uomSelect" required class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
                     <option value="">Select Unit</option>
                     @foreach($unitsOfMeasure as $uom)
                     <option value="{{ $uom }}" {{ old('unit_of_measure', $product->unit_of_measure) == $uom ? 'selected' : '' }}>
@@ -124,7 +124,7 @@
             <div>
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Low Stock Alert Level</label>
                 <input type="number" name="stock_alert_level" value="{{ old('stock_alert_level', $product->stock_alert_level) }}" required min="0"
-                    class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-1 focus:ring-cyan-500">
+                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm font-mono focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
             </div>
         </div>
 
@@ -132,13 +132,13 @@
             <div>
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Supplier Cost (₱)</label>
                 <input type="number" step="0.01" name="cost_price" value="{{ old('cost_price', $product->cost_price) }}" required
-                    class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-sm focus:ring-1 focus:ring-cyan-500">
+                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-base font-bold focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Retail Price (₱)</label>
                 <input type="number" step="0.01" name="unit_price" value="{{ old('unit_price', $product->unit_price) }}" required
-                    class="w-full py-2.5 px-3.5 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-sm focus:ring-1 focus:ring-cyan-500">
+                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-base font-bold focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
             </div>
         </div>
 

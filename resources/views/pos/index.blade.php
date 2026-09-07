@@ -153,9 +153,9 @@
             </div>
 
             <!-- Customer & Vehicle Selection -->
-            <div class="space-y-1.5 text-xs">
+            <div class="space-y-2 text-xs">
                 <select id="customerSelect" onchange="onCustomerSelect(this)"
-                    class="w-full py-1.5 px-3 bg-white dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-1 focus:ring-cyan-500">
+                    class="w-full py-2 px-3 bg-white dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-xs sm:text-sm focus:ring-1 focus:ring-cyan-500">
                     <option value="">Walk-in Customer (Unregistered)</option>
                     @foreach($customers as $c)
                     <option value="{{ $c->id }}" data-name="{{ $c->name }}" data-phone="{{ $c->contact_number }}" data-vehicle="{{ $c->vehicle_make_model }}" data-plate="{{ $c->plate_number }}">
@@ -165,17 +165,17 @@
                 </select>
                 <!-- Separate inputs for Name, Contact, Vehicle Model, and Plate # -->
                 <div id="customerDetailsInputs" class="space-y-1.5">
-                    <div class="grid grid-cols-2 gap-1.5">
+                    <div class="grid grid-cols-2 gap-2">
                         <input type="text" id="custNameInput" placeholder="Customer Name"
-                            class="py-1 px-2.5 bg-white dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500">
+                            class="py-2 px-3 bg-white dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500">
                         <input type="text" id="custPhoneInput" placeholder="Phone (e.g. 0917...)"
-                            class="py-1 px-2.5 bg-white dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500">
+                            class="py-2 px-3 bg-white dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500">
                     </div>
-                    <div class="grid grid-cols-2 gap-1.5">
+                    <div class="grid grid-cols-2 gap-2">
                         <input type="text" id="custVehicleInput" placeholder="Vehicle (e.g. Fortuner)"
-                            class="py-1 px-2.5 bg-white dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500">
+                            class="py-2 px-3 bg-white dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500">
                         <input type="text" id="custPlateInput" placeholder="Plate # (e.g. NBH-4821)"
-                            class="py-1 px-2.5 bg-white dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-lg text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500">
+                            class="py-2 px-3 bg-white dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-cyan-500">
                     </div>
                 </div>
             </div>
@@ -205,10 +205,10 @@
             </div>
             <div class="flex justify-between text-slate-600 dark:text-slate-400">
                 <span>Discount:</span>
-                <div class="flex items-center gap-1">
+                <div class="flex items-center gap-1.5">
                     <span>- ₱</span>
                     <input type="number" id="discountInput" value="0" min="0" step="10" oninput="calculateTotals()"
-                        class="w-16 py-0.5 px-1 bg-white dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded text-right text-xs font-mono">
+                        class="w-24 py-1.5 px-2.5 bg-white dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-lg text-right text-sm font-bold font-mono text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500">
                 </div>
             </div>
 
