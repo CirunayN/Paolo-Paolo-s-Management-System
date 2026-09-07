@@ -32,22 +32,17 @@
         @csrf
         @method('PUT')
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                    Product Code / SKU <span class="text-rose-500">*</span>
-                </label>
-                <input type="text" name="product_code" value="{{ old('product_code', $product->product_code) }}" required
-                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono uppercase text-base font-bold focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+        <div>
+            <div class="flex items-center justify-between mb-1.5">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                     Product Name <span class="text-rose-500">*</span>
                 </label>
-                <input type="text" name="name" value="{{ old('name', $product->name) }}" required
-                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm sm:text-base focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
+                <span class="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-lg border border-cyan-500/20">
+                    <i class="fas fa-barcode text-xs"></i> SKU: {{ $product->product_code }}
+                </span>
             </div>
+            <input type="text" name="name" value="{{ old('name', $product->name) }}" required placeholder="e.g. Toyota Fortuner 3-Row Deep Dish Matting"
+                class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm sm:text-base focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">

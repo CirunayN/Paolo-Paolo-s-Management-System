@@ -16,30 +16,15 @@
     <form method="POST" action="{{ route('products.store') }}" enctype="multipart/form-data" class="glass-card rounded-2xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6 text-sm">
         @csrf
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <!-- SKU / Product Code -->
-            <div>
-                <div class="flex items-center justify-between mb-1.5">
-                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                        Product Code / SKU <span class="text-rose-500">*</span>
-                    </label>
-                    <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-lg border border-emerald-500/20">
-                        <i class="fas fa-magic text-[10px]"></i> Auto-Assigned
-                    </span>
-                </div>
-                <input type="text" name="product_code" value="{{ old('product_code', $suggestedCode) }}" placeholder="e.g. PRD-0013"
-                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono uppercase text-base font-bold focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Continuous sequential number assigned automatically.</p>
-            </div>
-
-            <!-- Product Name -->
-            <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                    Product Name <span class="text-rose-500">*</span>
-                </label>
-                <input type="text" name="name" value="{{ old('name') }}" required placeholder="e.g. Toyota Fortuner 3-Row Deep Dish Matting"
-                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm sm:text-base focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
-            </div>
+        <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                Product Name <span class="text-rose-500">*</span>
+            </label>
+            <input type="text" name="name" value="{{ old('name') }}" required placeholder="e.g. Toyota Fortuner 3-Row Deep Dish Matting"
+                class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm sm:text-base focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                <i class="fas fa-magic text-cyan-500 mr-1"></i> Product Code / SKU will be generated and assigned automatically by the system.
+            </p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">

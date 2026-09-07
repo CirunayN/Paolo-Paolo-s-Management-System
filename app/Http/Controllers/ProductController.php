@@ -83,7 +83,6 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'product_code' => 'nullable|string|max:50|unique:products,product_code',
             'name' => 'required|string|max:150',
             'category_id' => 'required|exists:categories,id',
             'vehicle_brand' => 'nullable|string|max:50',
@@ -99,7 +98,7 @@ class ProductController extends Controller
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
         ]);
 
-        $code = !empty($validated['product_code']) ? strtoupper(trim($validated['product_code'])) : Product::generateNextProductCode();
+        $code = Product::generateNextProductCode();
 
         $imagePaths = [];
         if ($request->hasFile('images')) {
@@ -160,7 +159,6 @@ class ProductController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:150',
             'category_id' => 'required|exists:categories,id',
-            'product_code' => 'nullable|string|max:50|unique:products,product_code',
             'vehicle_brand' => 'nullable|string|max:50',
             'vehicle_model' => 'nullable|string|max:100',
             'unit_of_measure' => 'nullable|string|max:20',
@@ -169,7 +167,7 @@ class ProductController extends Controller
             'stock_alert_level' => 'nullable|integer|min:0',
         ]);
 
-        $code = !empty($validated['product_code']) ? strtoupper(trim($validated['product_code'])) : Product::generateNextProductCode();
+        $code = Product::generateNextProductCode();
 
         $product = Product::create([
             'product_code' => $code,
@@ -219,7 +217,6 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $validated = $request->validate([
-            'product_code' => 'required|string|max:50|unique:products,product_code,' . $product->id,
             'name' => 'required|string|max:150',
             'category_id' => 'required|exists:categories,id',
             'vehicle_brand' => 'nullable|string|max:50',
