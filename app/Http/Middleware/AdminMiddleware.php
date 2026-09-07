@@ -19,6 +19,14 @@ class AdminMiddleware
             abort(403, 'Unauthorized. Admin privileges required.');
         }
 
+        if ($request->isMethod('GET')) {
+            try {
+                \App\Http\Controllers\BackupController::checkAndRunScheduledAutoBackup();
+            } catch (\Throwable $e) {
+                // Background safety
+            }
+        }
+
         return $next($request);
     }
 }

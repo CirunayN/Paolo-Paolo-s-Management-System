@@ -482,10 +482,11 @@ class BackupController extends Controller
         return $restored;
     }
 
-    protected function checkAndRunAutoBackup(BackupSetting $settings, string $backupDir): void
+    public static function checkAndRunScheduledAutoBackup(): bool
     {
+        $settings = BackupSetting::getSettings();
         if ($settings->backup_mode !== 'automatic') {
-            return;
+            return false;
         }
 
         $last = $settings->last_backup_at;
@@ -497,25 +498,62 @@ class BackupController extends Controller
             $now = now();
             switch ($settings->frequency) {
                 case '1_day':
-                    $isDue = $now->diffInDays($last) >= 1;
+                    $isDue = !$last->isToday() || $now->diffInDays($last, true) >= 1;
                     break;
                 case '1_week':
-                    $isDue = $now->diffInWeeks($last) >= 1;
+                    $isDue = $now->diffInWeeks($last, true) >= 1;
                     break;
                 case '1_month':
-                    $isDue = $now->diffInMonths($last) >= 1;
+                    $isDue = $now->diffInMonths($last, true) >= 1;
                     break;
             }
         }
 
         if ($isDue) {
+            $instance = new self();
+            $backupDir = $instance->getBackupDirectory($settings);
+            if (!File::exists($backupDir)) {
+                try {
+                    File::makeDirectory($backupDir, 0777, true, true);
+                } catch (\Exception $e) {
+                    $backupDir = storage_path('app/backups');
+                    if (!File::exists($backupDir)) {
+                        File::makeDirectory($backupDir, 0777, true, true);
+                    }
+                }
+            }
+
             $filename = 'autobackup_paolopaolo_' . date('Y-m-d_His') . '.sql';
             $fullPath = rtrim($backupDir, '\\/') . DIRECTORY_SEPARATOR . $filename;
-            if ($this->performDatabaseDump($fullPath)) {
+            if ($instance->performDatabaseDump($fullPath)) {
                 $settings->last_backup_at = now();
                 $settings->save();
+
+                // If Google Drive auto-upload is enabled, upload automatically
+                if ($settings->gdrive_enabled && $settings->gdrive_auto_upload) {
+                    try {
+                        $gdrive = new GoogleDriveBackupService();
+                        $uploadResult = $gdrive->uploadBackup($fullPath, $settings->gdrive_folder_id);
+                        if (!empty($uploadResult['success'])) {
+                            $settings->last_gdrive_upload_at = now();
+                            $settings->save();
+                        }
+                    } catch (\Throwable $e) {
+                        Log::warning("Auto-backup Google Drive upload failed: " . $e->getMessage());
+                    }
+                }
+
+                $instance->cleanupOldBackups($settings, $backupDir);
+                return true;
             }
         }
+
+        return false;
+    }
+
+    protected function checkAndRunAutoBackup(BackupSetting $settings, string $backupDir): void
+    {
+        self::checkAndRunScheduledAutoBackup();
     }
 
     protected function cleanupOldBackups(BackupSetting $settings, string $backupDir): void

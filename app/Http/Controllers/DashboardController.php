@@ -9,11 +9,18 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Inventory;
+use App\Http\Controllers\BackupController;
 
 class DashboardController extends Controller
 {
     public function index()
     {
+        try {
+            BackupController::checkAndRunScheduledAutoBackup();
+        } catch (\Throwable $e) {
+            // Background safety
+        }
+
         $today = Carbon::today();
 
         // Key Metrics
