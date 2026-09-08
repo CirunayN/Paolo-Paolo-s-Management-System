@@ -38,6 +38,8 @@ Route::middleware(['auth'])->group(function () {
     // 5. Customer Records - Viewable by all, Modifiable ONLY by Admin
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
     Route::get('/customers/{customer}/orders', [CustomerController::class, 'orders'])->name('customers.orders');
+    Route::get('/customers/{customer}/installments', [CustomerController::class, 'activeInstallments'])->name('customers.installments');
+    Route::post('/customers/{customer}/collect-payment', [CustomerController::class, 'collectPayment'])->name('customers.collect-payment');
 
     // Profile (All Users)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

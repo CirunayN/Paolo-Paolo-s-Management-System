@@ -224,27 +224,36 @@
             <span>INSTALLMENT / DEPOSIT</span>
         </div>
         <div class="row">
-            <span>Payment Method:</span>
-            <span>{{ $order->payment_method }}</span>
+            <span>Status:</span>
+            <strong>{{ $order->balance_due <= 0 ? 'FULLY PAID' : 'PARTIAL / ACTIVE' }}</strong>
         </div>
-        @if(!empty($order->payment_reference))
         <div class="row">
-            <span>Ref No / Trx ID:</span>
-            <strong style="font-family: monospace;">{{ $order->payment_reference }}</strong>
+            <span>Total Paid:</span>
+            <span style="font-weight: bold;">₱{{ number_format($order->amount_paid, 2) }}</span>
         </div>
-        @endif
-        <div class="row" style="font-weight: bold;">
-            <span>Downpayment Paid:</span>
-            <span>₱{{ number_format($order->amount_paid, 2) }}</span>
-        </div>
-        <div class="row" style="font-size: 13px; font-weight: 900; border-top: 1px solid #111; margin-top: 4px; padding-top: 4px; color: #991b1b;">
+        <div class="row" style="font-size: 13px; font-weight: 900; border-top: 1px solid #111; margin-top: 4px; padding-top: 4px; color: {{ $order->balance_due <= 0 ? '#15803d' : '#991b1b' }};">
             <span>REMAINING BALANCE:</span>
             <span>₱{{ number_format($order->balance_due, 2) }}</span>
         </div>
-        @if($order->due_date)
+        @if($order->due_date && $order->balance_due > 0)
         <div class="row" style="font-size: 9px; color: #555;">
             <span>Target Due Date:</span>
             <span>{{ \Carbon\Carbon::parse($order->due_date)->format('M d, Y') }}</span>
+        </div>
+        @endif
+
+        @if($order->payments && $order->payments->count() > 0)
+        <div style="border-top: 1px dashed #000; margin-top: 6px; padding-top: 4px;">
+            <div style="font-weight: 800; font-size: 9px; margin-bottom: 3px; text-transform: uppercase;">Payment Ledger:</div>
+            <table style="width: 100%; font-size: 9px; border-collapse: collapse;">
+                @foreach($order->payments as $pmt)
+                <tr>
+                    <td style="padding: 1px 0;">#{{ $pmt->payment_number }} ({{ $pmt->payment_date ? \Carbon\Carbon::parse($pmt->payment_date)->format('m/d/y') : $pmt->created_at->format('m/d/y') }})</td>
+                    <td style="padding: 1px 0; text-align: center;">{{ $pmt->payment_method }}</td>
+                    <td style="padding: 1px 0; text-align: right; font-weight: bold;">₱{{ number_format($pmt->amount, 2) }}</td>
+                </tr>
+                @endforeach
+            </table>
         </div>
         @endif
         @else
