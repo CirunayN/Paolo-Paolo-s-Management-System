@@ -98,9 +98,15 @@
                     @endif
 
                     <!-- Stock Status Badge -->
+                    @if($p->is_service)
+                    <span class="absolute bottom-3 left-3 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-600/95 text-white flex items-center gap-1.5 shadow-md">
+                        <i class="fas fa-wrench text-[10px]"></i> Service
+                    </span>
+                    @else
                     <span class="absolute bottom-3 left-3 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider {{ $p->stock_status === 'in_stock' ? 'bg-emerald-500/90 text-white' : ($p->stock_status === 'low_stock' ? 'bg-amber-500/90 text-white' : 'bg-rose-500/90 text-white') }}">
                         {{ str_replace('_', ' ', $p->stock_status) }}
                     </span>
+                    @endif
                 </div>
 
                 <!-- Multiple Thumbnail Selector Strip (Switch image on click) -->
@@ -133,12 +139,23 @@
                     </div>
 
                     <!-- Stock Counter -->
+                    @if($p->is_service)
+                    <div class="mt-3 flex items-center justify-between text-xs p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                        <span class="text-purple-600 dark:text-purple-400 font-medium flex items-center gap-1.5">
+                            <i class="fas fa-screwdriver-wrench text-[11px]"></i> Service / Labor:
+                        </span>
+                        <span class="font-extrabold text-xs text-purple-600 dark:text-purple-300 uppercase tracking-wide">
+                            Non-Inventory
+                        </span>
+                    </div>
+                    @else
                     <div class="mt-3 flex items-center justify-between text-xs p-2.5 rounded-xl bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-slate-800">
                         <span class="text-slate-500 dark:text-slate-400 font-medium">Stock on Hand:</span>
                         <span class="font-extrabold text-sm {{ $p->stock_status === 'out_of_stock' ? 'text-rose-500' : 'text-slate-900 dark:text-white' }}">
                             {{ $p->stock_quantity }} {{ $p->unit_of_measure }}
                         </span>
                     </div>
+                    @endif
                 </div>
             </div>
 

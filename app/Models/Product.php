@@ -107,6 +107,9 @@ class Product extends Model
 
     public function getStockStatusAttribute(): string
     {
+        if ($this->is_service) {
+            return 'service';
+        }
         $qty = $this->stock_quantity;
         $alert = $this->stock_alert_level ?? 5;
 

@@ -13,7 +13,9 @@ class InventoryController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Inventory::with(['product.category']);
+        $query = Inventory::whereHas('product', function($q) {
+            $q->where('is_service', false);
+        })->with(['product.category']);
 
         if ($request->filled('status')) {
             if ($request->status === 'low') {
@@ -45,10 +47,11 @@ class InventoryController extends Controller
         $inventories = $query->paginate(15)->withQueryString();
         $categories = Category::orderBy('name')->get();
 
-        // Statistics
-        $totalItemsCount = Inventory::count();
-        $lowStockCount = Inventory::whereColumn('quantity_on_hand', '<=', 'reorder_level')->where('quantity_on_hand', '>', 0)->count();
-        $outOfStockCount = Inventory::where('quantity_on_hand', '<=', 0)->count();
+        // Statistics (Only physical products)
+        $physicalInventories = Inventory::whereHas('product', fn($q) => $q->where('is_service', false));
+        $totalItemsCount = (clone $physicalInventories)->count();
+        $lowStockCount = (clone $physicalInventories)->whereColumn('quantity_on_hand', '<=', 'reorder_level')->where('quantity_on_hand', '>', 0)->count();
+        $outOfStockCount = (clone $physicalInventories)->where('quantity_on_hand', '<=', 0)->count();
 
         return view('inventory.index', compact('inventories', 'categories', 'totalItemsCount', 'lowStockCount', 'outOfStockCount'));
     }

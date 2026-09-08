@@ -32,16 +32,45 @@
         @csrf
         @method('PUT')
 
+        <!-- Item Classification: Physical Product vs Service / Labor -->
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-slate-800">
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2.5">
+                Item Classification <span class="text-rose-500">*</span>
+            </label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-white dark:hover:bg-dark-850 transition-colors has-[:checked]:border-cyan-500 has-[:checked]:bg-cyan-500/10 has-[:checked]:dark:bg-cyan-500/20">
+                    <input type="radio" name="item_type_radio" value="product" {{ old('is_service', $product->is_service) ? '' : 'checked' }} onchange="toggleItemType('product')" class="w-4 h-4 text-cyan-500 focus:ring-cyan-500">
+                    <div>
+                        <div class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm flex items-center gap-1.5">
+                            <i class="fas fa-boxes-stacked text-cyan-500"></i> Physical Inventory Product
+                        </div>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400">Warehouse stock is tracked and decremented on sale</div>
+                    </div>
+                </label>
+
+                <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-white dark:hover:bg-dark-850 transition-colors has-[:checked]:border-purple-500 has-[:checked]:bg-purple-500/10 has-[:checked]:dark:bg-purple-500/20">
+                    <input type="radio" name="item_type_radio" value="service" {{ old('is_service', $product->is_service) ? 'checked' : '' }} onchange="toggleItemType('service')" class="w-4 h-4 text-purple-600 focus:ring-purple-500">
+                    <div>
+                        <div class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm flex items-center gap-1.5">
+                            <i class="fas fa-wrench text-purple-500"></i> Service / Installation / Labor
+                        </div>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400">Non-inventory service (no warehouse physical stock count)</div>
+                    </div>
+                </label>
+            </div>
+            <input type="hidden" name="is_service" id="isServiceInput" value="{{ old('is_service', $product->is_service ? 1 : 0) }}">
+        </div>
+
         <div>
             <div class="flex items-center justify-between mb-1.5">
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                    Product Name <span class="text-rose-500">*</span>
+                <label id="itemNameLabel" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                    {{ $product->is_service ? 'Service / Labor Name' : 'Product Name' }} <span class="text-rose-500">*</span>
                 </label>
                 <span class="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-lg border border-cyan-500/20">
                     <i class="fas fa-barcode text-xs"></i> SKU: {{ $product->product_code }}
                 </span>
             </div>
-            <input type="text" name="name" value="{{ old('name', $product->name) }}" required placeholder="e.g. Toyota Fortuner 3-Row Deep Dish Matting"
+            <input type="text" name="name" id="nameInput" value="{{ old('name', $product->name) }}" required placeholder="e.g. Toyota Fortuner 3-Row Deep Dish Matting"
                 class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm sm:text-base focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
         </div>
 
@@ -116,22 +145,22 @@
                 </select>
             </div>
 
-            <div>
+            <div id="stockAlertContainer" style="{{ $product->is_service ? 'display:none;' : '' }}">
                 <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Low Stock Alert Level</label>
-                <input type="number" name="stock_alert_level" value="{{ old('stock_alert_level', $product->stock_alert_level) }}" required min="0"
+                <input type="number" name="stock_alert_level" id="stockAlertInput" value="{{ old('stock_alert_level', $product->stock_alert_level) }}" min="0"
                     class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm font-mono focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Supplier Cost (₱)</label>
+                <label id="costPriceLabel" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ $product->is_service ? 'Estimated Labor Cost (₱)' : 'Supplier Cost (₱)' }}</label>
                 <input type="number" step="0.01" name="cost_price" value="{{ old('cost_price', $product->cost_price) }}" required
                     class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-base font-bold focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
             </div>
 
             <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Retail Price (₱)</label>
+                <label id="unitPriceLabel" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ $product->is_service ? 'Service Fee (₱)' : 'Retail Price (₱)' }}</label>
                 <input type="number" step="0.01" name="unit_price" value="{{ old('unit_price', $product->unit_price) }}" required
                     class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-base font-bold focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
             </div>
@@ -319,6 +348,33 @@
 
 @push('scripts')
 <script>
+function toggleItemType(type) {
+    const isService = (type === 'service');
+    document.getElementById('isServiceInput').value = isService ? '1' : '0';
+
+    const nameLabel = document.getElementById('itemNameLabel');
+    const nameInput = document.getElementById('nameInput');
+    const costLabel = document.getElementById('costPriceLabel');
+    const unitLabel = document.getElementById('unitPriceLabel');
+    const stockAlert = document.getElementById('stockAlertContainer');
+
+    if (isService) {
+        nameLabel.innerHTML = 'Service / Labor Name <span class="text-rose-500">*</span>';
+        nameInput.placeholder = 'e.g. 5D Matting Custom Fit & Installation Service';
+        costLabel.innerHTML = 'Estimated Labor Cost (₱) <span class="text-rose-500">*</span>';
+        unitLabel.innerHTML = 'Service Fee / Charge (₱) <span class="text-rose-500">*</span>';
+        if (stockAlert) stockAlert.style.display = 'none';
+        document.getElementById('stockAlertInput').value = '0';
+    } else {
+        nameLabel.innerHTML = 'Product Name <span class="text-rose-500">*</span>';
+        nameInput.placeholder = 'e.g. Toyota Fortuner 3-Row Deep Dish Matting';
+        costLabel.innerHTML = 'Supplier Cost (₱) <span class="text-rose-500">*</span>';
+        unitLabel.innerHTML = 'Retail Selling Price (₱) <span class="text-rose-500">*</span>';
+        if (stockAlert) stockAlert.style.display = '';
+        document.getElementById('stockAlertInput').value = '4';
+    }
+}
+
 let targetIndex = null;
 let targetPath = null;
 const totalInitialImages = {{ count($existingImages) }};

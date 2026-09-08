@@ -85,8 +85,9 @@ class ProductController extends Controller
             'unit_of_measure' => 'required|string|max:20',
             'cost_price' => 'required|numeric|min:0',
             'unit_price' => 'required|numeric|min:0',
-            'stock_alert_level' => 'required|integer|min:0',
+            'stock_alert_level' => 'nullable|integer|min:0',
             'initial_stock' => 'nullable|numeric|min:0',
+            'is_service' => 'nullable|boolean',
             'description' => 'nullable|string|max:1000',
             'images' => 'nullable|array|max:5',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
@@ -108,6 +109,8 @@ class ProductController extends Controller
             }
         }
 
+        $isService = $request->boolean('is_service');
+
         $product = Product::create([
             'product_code' => $code,
             'name' => $validated['name'],
@@ -118,22 +121,23 @@ class ProductController extends Controller
             'unit_of_measure' => $validated['unit_of_measure'],
             'cost_price' => $validated['cost_price'],
             'unit_price' => $validated['unit_price'],
-            'stock_alert_level' => $validated['stock_alert_level'],
+            'stock_alert_level' => $isService ? 0 : intval($validated['stock_alert_level'] ?? 5),
             'image_path' => $imagePaths[0] ?? null,
             'images' => $imagePaths,
             'description' => $validated['description'] ?? null,
             'is_active' => true,
+            'is_service' => $isService,
         ]);
 
-        $initialStock = floatval($request->input('initial_stock', 0));
+        $initialStock = $isService ? 0 : floatval($request->input('initial_stock', 0));
         Inventory::create([
             'product_id' => $product->id,
             'quantity_on_hand' => $initialStock,
-            'reorder_level' => $product->stock_alert_level,
-            'last_restocked_at' => $initialStock > 0 ? now() : null,
+            'reorder_level' => $isService ? 0 : $product->stock_alert_level,
+            'last_restocked_at' => ($initialStock > 0 && !$isService) ? now() : null,
         ]);
 
-        if ($initialStock > 0) {
+        if ($initialStock > 0 && !$isService) {
             StockTransaction::create([
                 'product_id' => $product->id,
                 'user_id' => Auth::id(),
@@ -219,7 +223,8 @@ class ProductController extends Controller
             'unit_of_measure' => 'required|string|max:20',
             'cost_price' => 'required|numeric|min:0',
             'unit_price' => 'required|numeric|min:0',
-            'stock_alert_level' => 'required|integer|min:0',
+            'stock_alert_level' => 'nullable|integer|min:0',
+            'is_service' => 'nullable|boolean',
             'description' => 'nullable|string|max:1000',
             'is_active' => 'boolean',
             'images' => 'nullable|array|max:5',
@@ -279,6 +284,9 @@ class ProductController extends Controller
 
         $validated['images'] = array_values($currentImages);
         $validated['image_path'] = $currentImages[0] ?? null;
+        $isService = $request->boolean('is_service');
+        $validated['is_service'] = $isService;
+        $validated['stock_alert_level'] = $isService ? 0 : intval($request->input('stock_alert_level', 5));
         $validated['is_active'] = $request->has('is_active');
 
         $product->update($validated);
