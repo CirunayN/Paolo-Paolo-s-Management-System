@@ -218,6 +218,36 @@
             <span>TOTAL AMOUNT:</span>
             <span>₱{{ number_format($order->total_amount, 2) }}</span>
         </div>
+        @if($order->isInstallment())
+        <div class="row" style="font-weight: 800; color: #4338ca; border-top: 1px dotted #333; padding-top: 4px; margin-top: 4px;">
+            <span>Payment Plan:</span>
+            <span>INSTALLMENT / DEPOSIT</span>
+        </div>
+        <div class="row">
+            <span>Payment Method:</span>
+            <span>{{ $order->payment_method }}</span>
+        </div>
+        @if(!empty($order->payment_reference))
+        <div class="row">
+            <span>Ref No / Trx ID:</span>
+            <strong style="font-family: monospace;">{{ $order->payment_reference }}</strong>
+        </div>
+        @endif
+        <div class="row" style="font-weight: bold;">
+            <span>Downpayment Paid:</span>
+            <span>₱{{ number_format($order->amount_paid, 2) }}</span>
+        </div>
+        <div class="row" style="font-size: 13px; font-weight: 900; border-top: 1px solid #111; margin-top: 4px; padding-top: 4px; color: #991b1b;">
+            <span>REMAINING BALANCE:</span>
+            <span>₱{{ number_format($order->balance_due, 2) }}</span>
+        </div>
+        @if($order->due_date)
+        <div class="row" style="font-size: 9px; color: #555;">
+            <span>Target Due Date:</span>
+            <span>{{ \Carbon\Carbon::parse($order->due_date)->format('M d, Y') }}</span>
+        </div>
+        @endif
+        @else
         <div class="row">
             <span>Payment Method:</span>
             <span>{{ $order->payment_method }}</span>
@@ -236,6 +266,7 @@
             <span>Change:</span>
             <strong>₱{{ number_format($order->change_amount, 2) }}</strong>
         </div>
+        @endif
     </div>
 
     <!-- Footer -->

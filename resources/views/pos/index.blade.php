@@ -56,8 +56,9 @@
             <div id="productGrid" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4" data-auto-animate>
                 @foreach($products as $p)
                 @php
+                    $isService = (bool)$p->is_service;
                     $qty = (float)($p->inventory->quantity_on_hand ?? 0);
-                    $outOfStock = $qty <= 0;
+                    $outOfStock = !$isService && ($qty <= 0);
                     $images = $p->all_images;
                 @endphp
                 <div class="product-item glass-card rounded-2xl p-3.5 border border-slate-200 dark:border-slate-800 hover:border-cyan-500 flex flex-col justify-between cursor-pointer transition-all transform hover:-translate-y-1 group relative overflow-hidden select-none {{ $outOfStock ? 'opacity-60 grayscale-[40%]' : '' }}"
@@ -69,7 +70,8 @@
                     data-id="{{ $p->id }}"
                     data-product-name="{{ $p->name }}"
                     data-price="{{ (float)$p->unit_price }}"
-                    data-stock="{{ (float)$qty }}"
+                    data-stock="{{ $isService ? 999999 : (float)$qty }}"
+                    data-is-service="{{ $isService ? '1' : '0' }}"
                     onclick="clickAddToCart(this)">
 
                     <!-- Image with Gallery Icon and Stock Tag -->
@@ -88,9 +90,15 @@
                         </button>
                         @endif
 
+                        @if($isService)
+                        <span class="absolute bottom-2 left-2 px-2 py-0.5 rounded text-[10px] font-black tracking-wider uppercase bg-purple-600 text-white flex items-center gap-1 shadow-md">
+                            <i class="fas fa-wrench text-[9px]"></i> SERVICE
+                        </span>
+                        @else
                         <span class="absolute bottom-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold {{ $qty <= $p->stock_alert_level ? ($qty <= 0 ? 'bg-rose-500 text-white' : 'bg-amber-500 text-white') : 'bg-emerald-600 text-white' }}">
                             {{ $qty <= 0 ? 'Out of Stock' : ($qty . ' ' . $p->unit_of_measure) }}
                         </span>
+                        @endif
                     </div>
 
                     <!-- Details -->
@@ -256,6 +264,20 @@
             <span class="text-2xl font-black font-display text-cyan-600 dark:text-cyan-400" id="modalTotalDisplay">₱ 0.00</span>
         </div>
 
+        <!-- Payment Plan: Full vs Installment / Downpayment -->
+        <div class="space-y-1.5 text-xs">
+            <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase">Payment Plan</label>
+            <div class="grid grid-cols-2 gap-2">
+                <button type="button" id="payTypeFullBtn" onclick="setPaymentType('Full')" class="p-2.5 rounded-xl border border-cyan-500 bg-cyan-500/10 font-bold text-cyan-600 dark:text-cyan-400 text-center flex items-center justify-center gap-1.5 transition-all">
+                    <i class="fas fa-check-circle"></i> Full Payment
+                </button>
+                <button type="button" id="payTypeInstallmentBtn" onclick="setPaymentType('Installment')" class="p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 font-bold text-slate-700 dark:text-slate-300 text-center flex items-center justify-center gap-1.5 transition-all">
+                    <i class="fas fa-calendar-days text-purple-500"></i> Installment / Deposit
+                </button>
+            </div>
+            <input type="hidden" id="paymentTypeInput" value="Full">
+        </div>
+
         <!-- Payment Method Selection -->
         <div class="space-y-1.5 text-xs">
             <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase">Payment Method</label>
@@ -286,9 +308,19 @@
             <p class="text-[10px] text-slate-400">Printed on receipt for audit &amp; customer verification.</p>
         </div>
 
+        <!-- Target Due Date (For Installment Orders) -->
+        <div id="installmentDueDateContainer" class="space-y-1 text-xs hidden">
+            <label class="block font-bold text-purple-600 dark:text-purple-400 uppercase flex items-center justify-between">
+                <span><i class="fas fa-calendar-day mr-1"></i> Target Due Date for Balance</span>
+                <span class="text-[10px] lowercase font-normal text-slate-400">(optional)</span>
+            </label>
+            <input type="date" id="installmentDueDateInput"
+                class="w-full py-2 px-3 bg-white dark:bg-dark-900 border border-purple-300 dark:border-purple-700 rounded-xl text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-purple-500">
+        </div>
+
         <!-- Tendered Amount & Presets -->
         <div class="space-y-2 text-xs">
-            <label class="block font-bold text-slate-700 dark:text-slate-300 uppercase">Amount Received (₱)</label>
+            <label id="amountReceivedLabel" class="block font-bold text-slate-700 dark:text-slate-300 uppercase">Amount Received (₱)</label>
             <input type="number" id="tenderedInput" step="1" oninput="calculateChange()"
                 class="w-full py-2.5 px-3 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-xl font-bold text-right focus:ring-1 focus:ring-cyan-500">
 
@@ -300,9 +332,9 @@
             </div>
         </div>
 
-        <!-- Change Amount Display -->
+        <!-- Change Amount / Remaining Balance Display -->
         <div class="p-3 rounded-xl bg-slate-100 dark:bg-dark-900 border border-slate-200 dark:border-slate-800 flex items-baseline justify-between text-xs">
-            <span class="font-bold text-slate-600 dark:text-slate-400 uppercase">Change Due:</span>
+            <span id="changeLabel" class="font-bold text-slate-600 dark:text-slate-400 uppercase">Change Due:</span>
             <span class="text-xl font-black font-display text-emerald-600 dark:text-emerald-400" id="changeDisplay">₱ 0.00</span>
         </div>
 
@@ -310,7 +342,7 @@
         <div class="pt-2">
             <button type="button" onclick="submitCheckout()" id="confirmPayBtn"
                 class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-sm shadow-lg shadow-emerald-500/20 transition-all">
-                Complete Sale &amp; Print Receipt
+                <span id="confirmPayBtnText">Complete Sale &amp; Print Receipt</span>
             </button>
         </div>
     </div>
@@ -320,6 +352,7 @@
 let cart = [];
 let currentOrderType = 'Walk-in';
 let currentPaymentMethod = 'Cash';
+let currentPaymentType = 'Full';
 let activeBrand = 'all';
 let activeCategory = 'all';
 
@@ -329,25 +362,26 @@ function clickAddToCart(card) {
     const id = parseInt(card.getAttribute('data-id'), 10);
     const name = card.getAttribute('data-product-name') || 'Item';
     const price = parseFloat(card.getAttribute('data-price')) || 0;
-    const stock = parseFloat(card.getAttribute('data-stock')) || 0;
-    addToCart(id, name, price, stock);
+    const isService = card.getAttribute('data-is-service') === '1';
+    const stock = isService ? 999999 : (parseFloat(card.getAttribute('data-stock')) || 0);
+    addToCart(id, name, price, stock, isService);
 }
 
-function addToCart(id, name, price, stock) {
-    if (stock <= 0) {
+function addToCart(id, name, price, stock, isService = false) {
+    if (!isService && stock <= 0) {
         alert('Item is currently out of stock!');
         return;
     }
 
     const existing = cart.find(i => i.id === id);
     if (existing) {
-        if (existing.quantity + 1 > stock) {
+        if (!isService && existing.quantity + 1 > stock) {
             alert('Cannot exceed available stock on hand (' + stock + ')');
             return;
         }
         existing.quantity += 1;
     } else {
-        cart.push({ id, name, price, quantity: 1, stock });
+        cart.push({ id, name, price, quantity: 1, stock, is_service: isService });
     }
     renderCart();
 }
@@ -447,10 +481,11 @@ function renderCart() {
 
     cart.forEach(item => {
         const lineTotal = item.quantity * item.price;
+        const serviceTag = item.is_service ? '<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-purple-500/20 text-purple-600 dark:text-purple-400 mr-1"><i class="fas fa-wrench text-[8px]"></i> SERVICE</span>' : '';
         html += `
             <div class="p-3 rounded-xl bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs gap-2">
                 <div class="flex-1 min-w-0">
-                    <div class="font-bold text-slate-900 dark:text-white truncate">${item.name}</div>
+                    <div class="font-bold text-slate-900 dark:text-white truncate">${serviceTag}${item.name}</div>
                     <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono">₱ ${item.price.toFixed(2)} each</div>
                 </div>
                 <div class="flex items-center gap-1.5 bg-white dark:bg-dark-800 p-1 rounded-lg border border-slate-300 dark:border-slate-700">
@@ -506,6 +541,32 @@ function onCustomerSelect(select) {
     }
 }
 
+function setPaymentType(type) {
+    currentPaymentType = type;
+    document.getElementById('paymentTypeInput').value = type;
+    const fullBtn = document.getElementById('payTypeFullBtn');
+    const instBtn = document.getElementById('payTypeInstallmentBtn');
+    const dueContainer = document.getElementById('installmentDueDateContainer');
+    const amountLabel = document.getElementById('amountReceivedLabel');
+    const total = parseFloat(document.getElementById('grandTotalDisplay').innerText.replace(/[^\d.]/g, '')) || 0;
+
+    if (type === 'Installment') {
+        fullBtn.className = 'p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 font-bold text-slate-700 dark:text-slate-300 text-center flex items-center justify-center gap-1.5 transition-all';
+        instBtn.className = 'p-2.5 rounded-xl border border-purple-500 bg-purple-500/10 font-bold text-purple-600 dark:text-purple-400 text-center flex items-center justify-center gap-1.5 transition-all';
+        if (dueContainer) dueContainer.classList.remove('hidden');
+        if (amountLabel) amountLabel.innerText = 'Downpayment / Deposit Received (₱)';
+        const half = total > 0 ? (total / 2) : 0;
+        document.getElementById('tenderedInput').value = half.toFixed(2);
+    } else {
+        fullBtn.className = 'p-2.5 rounded-xl border border-cyan-500 bg-cyan-500/10 font-bold text-cyan-600 dark:text-cyan-400 text-center flex items-center justify-center gap-1.5 transition-all';
+        instBtn.className = 'p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 font-bold text-slate-700 dark:text-slate-300 text-center flex items-center justify-center gap-1.5 transition-all';
+        if (dueContainer) dueContainer.classList.add('hidden');
+        if (amountLabel) amountLabel.innerText = 'Amount Received (₱)';
+        document.getElementById('tenderedInput').value = total.toFixed(2);
+    }
+    calculateChange();
+}
+
 // Payment Dialog
 function openPaymentModal() {
     if (cart.length === 0) return;
@@ -518,9 +579,8 @@ function openPaymentModal() {
     const refInput = document.getElementById('paymentRefInput');
     if (refInput) refInput.value = '';
 
-    const totalText = document.getElementById('grandTotalDisplay').innerText.replace(/[^\d.]/g, '');
-    document.getElementById('tenderedInput').value = totalText;
-    calculateChange();
+    // Initialize payment plan
+    setPaymentType(currentPaymentType || 'Full');
 }
 
 function closePaymentModal() {
@@ -554,8 +614,9 @@ function setPaymentMethod(m) {
             refLabel.innerHTML = '<span><i class="fas fa-building-columns mr-1 text-amber-500"></i> Bank Transfer Ref / Trace #</span><span class="text-[10px] lowercase font-normal text-slate-400">(optional)</span>';
             refInput.placeholder = 'e.g. BDO-TXN-882194';
         }
-        // Auto-populate exact amount tendered for digital/electronic payments
-        setTenderExact();
+        if (currentPaymentType !== 'Installment') {
+            setTenderExact();
+        }
     }
 }
 
@@ -579,23 +640,58 @@ function setTenderPreset(preset) {
 function calculateChange() {
     const total = parseFloat(document.getElementById('grandTotalDisplay').innerText.replace(/[^\d.]/g, '')) || 0;
     const tendered = parseFloat(document.getElementById('tenderedInput').value) || 0;
-    const change = Math.max(0, tendered - total);
-    document.getElementById('changeDisplay').innerText = '₱ ' + change.toLocaleString('en-US', {minimumFractionDigits: 2});
+    const changeLabel = document.getElementById('changeLabel');
+    const changeDisplay = document.getElementById('changeDisplay');
+
+    if (currentPaymentType === 'Installment') {
+        const balance = Math.max(0, total - tendered);
+        if (changeLabel) changeLabel.innerText = 'Remaining Balance Due:';
+        if (changeDisplay) {
+            changeDisplay.className = 'text-xl font-black font-display text-amber-500 dark:text-amber-400';
+            changeDisplay.innerText = '₱ ' + balance.toLocaleString('en-US', {minimumFractionDigits: 2});
+        }
+    } else {
+        const change = Math.max(0, tendered - total);
+        if (changeLabel) changeLabel.innerText = 'Change Due:';
+        if (changeDisplay) {
+            changeDisplay.className = 'text-xl font-black font-display text-emerald-600 dark:text-emerald-400';
+            changeDisplay.innerText = '₱ ' + change.toLocaleString('en-US', {minimumFractionDigits: 2});
+        }
+    }
 }
 
 function submitCheckout() {
     const total = parseFloat(document.getElementById('grandTotalDisplay').innerText.replace(/[^\d.]/g, '')) || 0;
     const tendered = parseFloat(document.getElementById('tenderedInput').value) || 0;
+    const isInstallment = (currentPaymentType === 'Installment');
 
-    if (tendered < total) {
+    if (!isInstallment && tendered < total && currentPaymentMethod === 'Cash') {
         alert('Tendered amount cannot be less than total amount due!');
         return;
+    }
+
+    const custName = document.getElementById('custNameInput').value.trim();
+    const custId = document.getElementById('customerSelect').value || null;
+
+    if (isInstallment) {
+        if (tendered < 0) {
+            alert('Downpayment amount cannot be negative!');
+            return;
+        }
+        if (tendered > total) {
+            alert('Downpayment cannot exceed total amount due!');
+            return;
+        }
+        if (!custId && (!custName || custName.toLowerCase() === 'walk-in customer')) {
+            alert('Please select or enter a customer name so their installment balance is recorded.');
+            document.getElementById('custNameInput').focus();
+            return;
+        }
     }
 
     const refInput = document.getElementById('paymentRefInput');
     const paymentRef = (refInput && !refInput.parentElement.classList.contains('hidden')) ? refInput.value.trim() : null;
 
-    const custName = document.getElementById('custNameInput').value.trim();
     const custPhone = document.getElementById('custPhoneInput').value.trim();
     const vehicleModel = document.getElementById('custVehicleInput').value.trim();
     const plateNo = document.getElementById('custPlateInput').value.trim();
@@ -604,7 +700,7 @@ function submitCheckout() {
     const payload = {
         cart: cart,
         order_type: currentOrderType,
-        customer_id: document.getElementById('customerSelect').value || null,
+        customer_id: custId,
         customer_name: custName || 'Walk-in Customer',
         customer_phone: custPhone || null,
         vehicle_model: vehicleModel || null,
@@ -613,8 +709,10 @@ function submitCheckout() {
         installation_fee: (currentOrderType === 'With Installation') ? 300.00 : 0.00,
         discount_amount: parseFloat(document.getElementById('discountInput').value) || 0,
         payment_method: currentPaymentMethod,
+        payment_type: currentPaymentType,
         payment_reference: paymentRef,
         amount_tendered: tendered,
+        due_date: isInstallment ? (document.getElementById('installmentDueDateInput')?.value || null) : null,
     };
 
     fetch("{{ route('pos.checkout') }}", {

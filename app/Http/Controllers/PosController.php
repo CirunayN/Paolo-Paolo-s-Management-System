@@ -12,6 +12,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Inventory;
 use App\Models\StockTransaction;
+use App\Models\OrderPayment;
 
 class PosController extends Controller
 {
@@ -51,8 +52,10 @@ class PosController extends Controller
             'installation_fee' => 'nullable|numeric|min:0',
             'discount_amount' => 'nullable|numeric|min:0',
             'payment_method' => 'required|string|in:Cash,GCash / Maya,Card,Bank Transfer',
+            'payment_type' => 'nullable|string|in:Full,Installment',
             'payment_reference' => 'nullable|string|max:100',
             'amount_tendered' => 'required|numeric|min:0',
+            'due_date' => 'nullable|date',
             'notes' => 'nullable|string|max:500',
         ]);
 
@@ -127,15 +130,48 @@ class PosController extends Controller
             $discount = floatval($validated['discount_amount'] ?? 0);
             $totalAmount = max(0, $subtotal + $installationFee - $discount);
             $tendered = floatval($validated['amount_tendered']);
+            $paymentType = $validated['payment_type'] ?? 'Full';
+            $dueDate = $validated['due_date'] ?? null;
 
-            if ($tendered < $totalAmount && in_array($validated['payment_method'], ['Cash'])) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Tendered amount ₱' . number_format($tendered, 2) . ' is less than total amount ₱' . number_format($totalAmount, 2)
-                ], 422);
+            if ($paymentType === 'Installment') {
+                if (!$customerId && (empty($customerName) || strcasecmp($customerName, 'Walk-in Customer') === 0)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'A registered customer or customer name is required for installment/downpayment orders.'
+                    ], 422);
+                }
+
+                if ($tendered < 0) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Downpayment amount cannot be negative.'
+                    ], 422);
+                }
+
+                if ($tendered > $totalAmount) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Downpayment cannot exceed the total bill (₱' . number_format($totalAmount, 2) . ').'
+                    ], 422);
+                }
+
+                $amountPaid = $tendered;
+                $balanceDue = max(0, $totalAmount - $amountPaid);
+                $change = 0;
+                $paymentStatus = ($balanceDue <= 0) ? 'Paid' : 'Partial';
+            } else {
+                if ($tendered < $totalAmount && in_array($validated['payment_method'], ['Cash'])) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Tendered amount ₱' . number_format($tendered, 2) . ' is less than total amount ₱' . number_format($totalAmount, 2)
+                    ], 422);
+                }
+
+                $change = max(0, $tendered - $totalAmount);
+                $amountPaid = min($tendered, $totalAmount);
+                $balanceDue = 0;
+                $paymentStatus = 'Paid';
             }
-
-            $change = max(0, $tendered - $totalAmount);
 
             // Generate unique invoice number: INV-YYYYMMDD-XXXX
             $datePrefix = date('Ymd');
@@ -163,12 +199,31 @@ class PosController extends Controller
                 'discount_amount' => $discount,
                 'total_amount' => $totalAmount,
                 'payment_method' => $validated['payment_method'],
+                'payment_type' => $paymentType,
                 'payment_reference' => $validated['payment_reference'] ?? null,
                 'amount_tendered' => $tendered,
+                'amount_paid' => $amountPaid,
+                'balance_due' => $balanceDue,
                 'change_amount' => $change,
-                'payment_status' => 'Paid',
+                'payment_status' => $paymentStatus,
+                'due_date' => $dueDate,
                 'notes' => $validated['notes'] ?? null,
             ]);
+
+            // Record initial payment ledger entry if amount paid > 0
+            if ($amountPaid > 0) {
+                OrderPayment::create([
+                    'order_id' => $order->id,
+                    'customer_id' => $customerId,
+                    'user_id' => $user->id,
+                    'payment_number' => 1,
+                    'amount' => $amountPaid,
+                    'payment_method' => $validated['payment_method'],
+                    'payment_reference' => $validated['payment_reference'] ?? null,
+                    'notes' => ($paymentType === 'Installment') ? 'Initial downpayment at POS checkout' : 'Full payment at POS checkout',
+                    'payment_date' => now(),
+                ]);
+            }
 
             // Create Order Items and Update Inventory
             foreach ($validated['cart'] as $item) {
@@ -184,8 +239,8 @@ class PosController extends Controller
                     'subtotal' => $itemSubtotal,
                 ]);
 
-                // Deduct stock if inventory tracking applies (skip purely labor services)
-                if ($product->inventory && $product->category->slug !== 'installation-services') {
+                // Deduct stock if inventory tracking applies (skip purely labor/service products)
+                if ($product->inventory && !$product->is_service && $product->category->slug !== 'installation-services') {
                     $inv = $product->inventory;
                     $inv->quantity_on_hand = max(0, $inv->quantity_on_hand - $item['quantity']);
                     $inv->save();
