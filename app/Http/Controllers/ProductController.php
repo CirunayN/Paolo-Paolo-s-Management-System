@@ -83,14 +83,16 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
+        $isService = $request->boolean('is_service');
+
         $validated = $request->validate([
             'name' => 'required|string|max:150',
             'category_id' => 'required|exists:categories,id',
             'vehicle_brand' => 'nullable|string|max:50',
             'vehicle_model' => 'nullable|string|max:100',
             'material_type' => 'nullable|string|max:100',
-            'unit_of_measure' => 'required|string|max:20',
-            'cost_price' => 'required|numeric|min:0',
+            'unit_of_measure' => $isService ? 'nullable|string|max:20' : 'required|string|max:20',
+            'cost_price' => $isService ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
             'unit_price' => 'required|numeric|min:0',
             'stock_alert_level' => 'nullable|integer|min:0',
             'initial_stock' => 'nullable|numeric|min:0',
@@ -116,18 +118,16 @@ class ProductController extends Controller
             }
         }
 
-        $isService = $request->boolean('is_service');
-
         $product = Product::create([
             'product_code' => $code,
             'name' => $validated['name'],
             'category_id' => $validated['category_id'],
-            'vehicle_brand' => $validated['vehicle_brand'] ?? 'Universal',
-            'vehicle_model' => $validated['vehicle_model'] ?? 'Universal',
-            'material_type' => $validated['material_type'] ?? null,
-            'unit_of_measure' => $validated['unit_of_measure'],
-            'cost_price' => $validated['cost_price'],
-            'unit_price' => $validated['unit_price'],
+            'vehicle_brand' => $isService ? ($validated['vehicle_brand'] ?: 'Universal') : ($validated['vehicle_brand'] ?? 'Universal'),
+            'vehicle_model' => $isService ? ($validated['vehicle_model'] ?: 'Universal') : ($validated['vehicle_model'] ?? 'Universal'),
+            'material_type' => $isService ? ($validated['material_type'] ?: 'Labor Service') : ($validated['material_type'] ?? null),
+            'unit_of_measure' => $isService ? ($validated['unit_of_measure'] ?: 'Job') : ($validated['unit_of_measure'] ?? 'Set'),
+            'cost_price' => $isService ? floatval($validated['cost_price'] ?? 0) : floatval($validated['cost_price']),
+            'unit_price' => floatval($validated['unit_price']),
             'stock_alert_level' => $isService ? 0 : intval($validated['stock_alert_level'] ?? 5),
             'image_path' => $imagePaths[0] ?? null,
             'images' => $imagePaths,
@@ -221,14 +221,16 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
+        $isService = $request->boolean('is_service');
+
         $validated = $request->validate([
             'name' => 'required|string|max:150',
             'category_id' => 'required|exists:categories,id',
             'vehicle_brand' => 'nullable|string|max:50',
             'vehicle_model' => 'nullable|string|max:100',
             'material_type' => 'nullable|string|max:100',
-            'unit_of_measure' => 'required|string|max:20',
-            'cost_price' => 'required|numeric|min:0',
+            'unit_of_measure' => $isService ? 'nullable|string|max:20' : 'required|string|max:20',
+            'cost_price' => $isService ? 'nullable|numeric|min:0' : 'required|numeric|min:0',
             'unit_price' => 'required|numeric|min:0',
             'stock_alert_level' => 'nullable|integer|min:0',
             'is_service' => 'nullable|boolean',
@@ -293,6 +295,11 @@ class ProductController extends Controller
         $validated['image_path'] = $currentImages[0] ?? null;
         $isService = $request->boolean('is_service');
         $validated['is_service'] = $isService;
+        $validated['vehicle_brand'] = $isService ? ($validated['vehicle_brand'] ?: 'Universal') : ($validated['vehicle_brand'] ?? 'Universal');
+        $validated['vehicle_model'] = $isService ? ($validated['vehicle_model'] ?: 'Universal') : ($validated['vehicle_model'] ?? 'Universal');
+        $validated['material_type'] = $isService ? ($validated['material_type'] ?: 'Labor Service') : ($validated['material_type'] ?? null);
+        $validated['unit_of_measure'] = $isService ? ($validated['unit_of_measure'] ?: 'Job') : ($validated['unit_of_measure'] ?? 'Set');
+        $validated['cost_price'] = $isService ? floatval($validated['cost_price'] ?? 0) : floatval($validated['cost_price']);
         $validated['stock_alert_level'] = $isService ? 0 : intval($request->input('stock_alert_level', 5));
         $validated['is_active'] = $request->has('is_active');
 

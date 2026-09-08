@@ -56,7 +56,8 @@
             </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <!-- Essential Details: Category & Retail Price / Service Fee -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <!-- Category -->
             <div>
                 <div class="flex items-center justify-between mb-1.5">
@@ -77,98 +78,103 @@
                 </select>
             </div>
 
-            <!-- Brand -->
-            <div>
-                <div class="flex items-center justify-between mb-1.5">
-                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                        Brand <span class="text-rose-500">*</span>
-                    </label>
-                    <button type="button" onclick="openNewBrandModal()" class="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1">
-                        <i class="fas fa-plus-circle"></i> + New Brand
-                    </button>
-                </div>
-                <select name="vehicle_brand" id="brandSelect" required class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
-                    <option value="">Select Brand</option>
-                    @foreach($brands as $brand)
-                    <option value="{{ $brand }}" {{ old('vehicle_brand', 'Toyota') == $brand ? 'selected' : '' }}>
-                        {{ $brand }}
-                    </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <!-- Vehicle Model / Year -->
-            <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Compatible Model / Year</label>
-                <input type="text" name="vehicle_model" value="{{ old('vehicle_model') }}" placeholder="e.g. Fortuner 2016-2024"
-                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <!-- Material Type -->
-            <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Material Type</label>
-                <input type="text" name="material_type" value="{{ old('material_type') }}" placeholder="e.g. TPE Deep Dish, 5D Leatherette, PVC Coil"
-                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
-            </div>
-
-            <!-- Unit of Measure -->
-            <div>
-                <div class="flex items-center justify-between mb-1.5">
-                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                        Unit of Measure <span class="text-rose-500">*</span>
-                    </label>
-                    <button type="button" onclick="openNewUomModal()" class="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1">
-                        <i class="fas fa-plus-circle"></i> + New Unit
-                    </button>
-                </div>
-                <select name="unit_of_measure" id="uomSelect" required class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
-                    <option value="">Select Unit</option>
-                    @foreach($unitsOfMeasure as $uom)
-                    <option value="{{ $uom }}" {{ old('unit_of_measure', 'Set') == $uom ? 'selected' : '' }}>
-                        {{ $uom }}
-                    </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <!-- Stock Alert Level -->
-            <div id="stockAlertContainer">
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                    Low Stock Threshold <span class="text-rose-500">*</span>
-                </label>
-                <input type="number" name="stock_alert_level" id="stockAlertInput" value="{{ old('stock_alert_level', 4) }}" min="0"
-                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm font-mono focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <!-- Cost Price -->
-            <div>
-                <label id="costPriceLabel" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                    Supplier Cost (₱) <span class="text-rose-500">*</span>
-                </label>
-                <input type="number" step="0.01" name="cost_price" value="{{ old('cost_price') }}" required placeholder="0.00"
-                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-base font-bold focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
-            </div>
-
-            <!-- Retail Selling Price -->
+            <!-- Retail Selling Price / Service Fee -->
             <div>
                 <label id="unitPriceLabel" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
                     Retail Selling Price (₱) <span class="text-rose-500">*</span>
                 </label>
-                <input type="number" step="0.01" name="unit_price" value="{{ old('unit_price') }}" required placeholder="0.00"
+                <input type="number" step="0.01" name="unit_price" id="unitPriceInput" value="{{ old('unit_price') }}" required placeholder="0.00"
                     class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-base font-bold focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
             </div>
+        </div>
 
-            <!-- Initial Stock on Hand -->
-            <div id="initialStockContainer">
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                    Initial Stock on Hand
-                </label>
-                <input type="number" step="0.01" name="initial_stock" id="initialStockInput" value="{{ old('initial_stock', 0) }}" min="0"
-                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-base focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
+        <!-- Physical Inventory Specifications (Hidden when Service is selected) -->
+        <div id="physicalSpecsSection" class="space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <!-- Brand -->
+                <div id="brandContainer">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                            Brand <span class="text-rose-500">*</span>
+                        </label>
+                        <button type="button" onclick="openNewBrandModal()" class="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1">
+                            <i class="fas fa-plus-circle"></i> + New Brand
+                        </button>
+                    </div>
+                    <select name="vehicle_brand" id="brandSelect" required class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
+                        <option value="">Select Brand</option>
+                        @foreach($brands as $brand)
+                        <option value="{{ $brand }}" {{ old('vehicle_brand', 'Toyota') == $brand ? 'selected' : '' }}>
+                            {{ $brand }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Vehicle Model / Year -->
+                <div id="modelContainer">
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Compatible Model / Year</label>
+                    <input type="text" name="vehicle_model" id="vehicleModelInput" value="{{ old('vehicle_model') }}" placeholder="e.g. Fortuner 2016-2024"
+                        class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <!-- Material Type -->
+                <div id="materialContainer">
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Material Type</label>
+                    <input type="text" name="material_type" id="materialTypeInput" value="{{ old('material_type') }}" placeholder="e.g. TPE Deep Dish, 5D Leatherette, PVC Coil"
+                        class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
+                </div>
+
+                <!-- Unit of Measure -->
+                <div id="uomContainer">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                            Unit of Measure <span class="text-rose-500">*</span>
+                        </label>
+                        <button type="button" onclick="openNewUomModal()" class="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1">
+                            <i class="fas fa-plus-circle"></i> + New Unit
+                        </button>
+                    </div>
+                    <select name="unit_of_measure" id="uomSelect" required class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
+                        <option value="">Select Unit</option>
+                        @foreach($unitsOfMeasure as $uom)
+                        <option value="{{ $uom }}" {{ old('unit_of_measure', 'Set') == $uom ? 'selected' : '' }}>
+                            {{ $uom }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <!-- Supplier Cost -->
+                <div id="costPriceContainer">
+                    <label id="costPriceLabel" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                        Supplier Cost (₱) <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="number" step="0.01" name="cost_price" id="costPriceInput" value="{{ old('cost_price', 0) }}" placeholder="0.00"
+                        class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-base font-bold focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
+                </div>
+
+                <!-- Stock Alert Level -->
+                <div id="stockAlertContainer">
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                        Low Stock Threshold <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="number" name="stock_alert_level" id="stockAlertInput" value="{{ old('stock_alert_level', 4) }}" min="0"
+                        class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm font-mono focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
+                </div>
+
+                <!-- Initial Stock on Hand -->
+                <div id="initialStockContainer">
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                        Initial Stock on Hand
+                    </label>
+                    <input type="number" step="0.01" name="initial_stock" id="initialStockInput" value="{{ old('initial_stock', 0) }}" min="0"
+                        class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-base focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
+                </div>
             </div>
         </div>
 
@@ -176,7 +182,7 @@
         <div class="p-5 rounded-2xl bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-slate-700 space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                    <label id="photoSectionLabel" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                         <i class="fas fa-images text-cyan-500 mr-1.5"></i> Product Photos (Up to 5 Images)
                     </label>
                     <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -227,7 +233,7 @@
             <a href="{{ route('products.index') }}" class="px-5 py-2.5 rounded-xl bg-slate-200 dark:bg-dark-800 text-slate-700 dark:text-slate-300 font-semibold text-xs">
                 Cancel
             </a>
-            <button type="submit" class="px-7 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-cyan-500/20 cursor-pointer">
+            <button type="submit" id="submitBtn" class="px-7 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-cyan-500/20 cursor-pointer">
                 Create Product
             </button>
         </div>
@@ -241,30 +247,95 @@ function toggleItemType(type) {
 
     const nameLabel = document.getElementById('itemNameLabel');
     const nameInput = document.getElementById('nameInput');
-    const costLabel = document.getElementById('costPriceLabel');
     const unitLabel = document.getElementById('unitPriceLabel');
-    const stockAlert = document.getElementById('stockAlertContainer');
-    const initialStock = document.getElementById('initialStockContainer');
+    const physicalSection = document.getElementById('physicalSpecsSection');
+    const brandSelect = document.getElementById('brandSelect');
+    const uomSelect = document.getElementById('uomSelect');
+    const costInput = document.getElementById('costPriceInput');
+    const submitBtn = document.getElementById('submitBtn');
+    const photoSectionLabel = document.getElementById('photoSectionLabel');
 
     if (isService) {
         nameLabel.innerHTML = 'Service / Labor Name <span class="text-rose-500">*</span>';
-        nameInput.placeholder = 'e.g. 5D Matting Custom Fit & Installation Service';
-        costLabel.innerHTML = 'Estimated Labor Cost (₱) <span class="text-rose-500">*</span>';
+        nameInput.placeholder = 'e.g. 5D Matting Custom Fit & Installation Service, Tinting, Ceramic Coating...';
         unitLabel.innerHTML = 'Service Fee / Charge (₱) <span class="text-rose-500">*</span>';
-        stockAlert.style.display = 'none';
-        initialStock.style.display = 'none';
-        document.getElementById('stockAlertInput').value = '0';
-        document.getElementById('initialStockInput').value = '0';
+        if (photoSectionLabel) {
+            photoSectionLabel.innerHTML = '<i class="fas fa-images text-cyan-500 mr-1.5"></i> Service Photos (Optional, Up to 5 Images)';
+        }
+        if (submitBtn) {
+            submitBtn.innerHTML = '<i class="fas fa-wrench mr-1.5"></i> Create Service';
+        }
+
+        // Hide automotive / warehouse inventory specifications
+        if (physicalSection) {
+            physicalSection.style.display = 'none';
+        }
+
+        // Make physical-only required fields non-required
+        if (brandSelect) brandSelect.removeAttribute('required');
+        if (uomSelect) uomSelect.removeAttribute('required');
+        if (costInput) costInput.removeAttribute('required');
+
+        // Set safe defaults for service
+        if (brandSelect && !brandSelect.value) brandSelect.value = 'Universal';
+        const modelInput = document.getElementById('vehicleModelInput');
+        if (modelInput && !modelInput.value) modelInput.value = 'Universal';
+        const materialInput = document.getElementById('materialTypeInput');
+        if (materialInput && !materialInput.value) materialInput.value = 'Labor Service';
+        if (uomSelect && !uomSelect.value) uomSelect.value = 'Job';
+        if (costInput && (!costInput.value || costInput.value === '0')) costInput.value = '0';
+
+        const stockAlertInput = document.getElementById('stockAlertInput');
+        if (stockAlertInput) stockAlertInput.value = '0';
+        const initialStockInput = document.getElementById('initialStockInput');
+        if (initialStockInput) initialStockInput.value = '0';
+
+        // Auto-select Services category if available and not set
+        const catSelect = document.getElementById('categorySelect');
+        if (catSelect && (catSelect.value === '' || catSelect.selectedIndex <= 0)) {
+            for (let i = 0; i < catSelect.options.length; i++) {
+                if (catSelect.options[i].text.toLowerCase().includes('labor') || catSelect.options[i].text.toLowerCase().includes('service')) {
+                    catSelect.selectedIndex = i;
+                    break;
+                }
+            }
+        }
     } else {
         nameLabel.innerHTML = 'Product Name <span class="text-rose-500">*</span>';
         nameInput.placeholder = 'e.g. Toyota Fortuner 3-Row Deep Dish Matting';
-        costLabel.innerHTML = 'Supplier Cost (₱) <span class="text-rose-500">*</span>';
         unitLabel.innerHTML = 'Retail Selling Price (₱) <span class="text-rose-500">*</span>';
-        stockAlert.style.display = '';
-        initialStock.style.display = '';
-        document.getElementById('stockAlertInput').value = '4';
+        if (photoSectionLabel) {
+            photoSectionLabel.innerHTML = '<i class="fas fa-images text-cyan-500 mr-1.5"></i> Product Photos (Up to 5 Images)';
+        }
+        if (submitBtn) {
+            submitBtn.innerHTML = 'Create Product';
+        }
+
+        // Show physical specifications
+        if (physicalSection) {
+            physicalSection.style.display = '';
+        }
+
+        // Re-enable requirements
+        if (brandSelect) brandSelect.setAttribute('required', 'required');
+        if (uomSelect) uomSelect.setAttribute('required', 'required');
+        if (costInput) costInput.setAttribute('required', 'required');
+
+        const stockAlertInput = document.getElementById('stockAlertInput');
+        if (stockAlertInput && stockAlertInput.value === '0') stockAlertInput.value = '4';
     }
 }
+
+// Check initial state on page load (e.g. if redirected with ?type=service or old value)
+document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialIsService = document.getElementById('isServiceInput').value === '1' || urlParams.get('type') === 'service' || urlParams.get('is_service') === '1';
+    if (initialIsService) {
+        const serviceRadio = document.querySelector('input[name="item_type_radio"][value="service"]');
+        if (serviceRadio) serviceRadio.checked = true;
+        toggleItemType('service');
+    }
+});
 
 // Cumulative DataTransfer to accumulate multi-image selections across multiple file dialogs
 const stagedDataTransfer = new DataTransfer();

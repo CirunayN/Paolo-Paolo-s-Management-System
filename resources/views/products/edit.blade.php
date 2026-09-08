@@ -74,7 +74,8 @@
                 class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm sm:text-base focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <!-- Essential Details: Category & Retail Price / Service Fee -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
                 <div class="flex items-center justify-between mb-1.5">
                     <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
@@ -94,75 +95,82 @@
             </div>
 
             <div>
-                <div class="flex items-center justify-between mb-1.5">
-                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                        Brand <span class="text-rose-500">*</span>
-                    </label>
-                    <button type="button" onclick="openNewBrandModal()" class="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1">
-                        <i class="fas fa-plus-circle"></i> + New Brand
-                    </button>
-                </div>
-                <select name="vehicle_brand" id="brandSelect" required class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
-                    <option value="">Select Brand</option>
-                    @foreach($brands as $brand)
-                    <option value="{{ $brand }}" {{ old('vehicle_brand', $product->vehicle_brand) == $brand ? 'selected' : '' }}>
-                        {{ $brand }}
-                    </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Compatible Model</label>
-                <input type="text" name="vehicle_model" value="{{ old('vehicle_model', $product->vehicle_model) }}"
-                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
+                <label id="unitPriceLabel" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                    {{ $product->is_service ? 'Service Fee / Charge (₱)' : 'Retail Selling Price (₱)' }} <span class="text-rose-500">*</span>
+                </label>
+                <input type="number" step="0.01" name="unit_price" id="unitPriceInput" value="{{ old('unit_price', $product->unit_price) }}" required min="0"
+                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-base font-bold focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Material Type</label>
-                <input type="text" name="material_type" value="{{ old('material_type', $product->material_type) }}"
-                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
-            </div>
-
-            <div>
-                <div class="flex items-center justify-between mb-1.5">
-                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                        Unit of Measure <span class="text-rose-500">*</span>
-                    </label>
-                    <button type="button" onclick="openNewUomModal()" class="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1">
-                        <i class="fas fa-plus-circle"></i> + New Unit
-                    </button>
+        <!-- Physical Inventory Only Specifications (Auto-hidden for Services) -->
+        <div id="physicalSpecsSection" class="space-y-5" style="{{ $product->is_service ? 'display:none;' : '' }}">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div id="brandContainer">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                            Brand <span class="text-rose-500">*</span>
+                        </label>
+                        <button type="button" onclick="openNewBrandModal()" class="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1">
+                            <i class="fas fa-plus-circle"></i> + New Brand
+                        </button>
+                    </div>
+                    <select name="vehicle_brand" id="brandSelect" {{ $product->is_service ? '' : 'required' }} class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
+                        <option value="">Select Brand</option>
+                        @foreach($brands as $brand)
+                        <option value="{{ $brand }}" {{ old('vehicle_brand', $product->vehicle_brand) == $brand ? 'selected' : '' }}>
+                            {{ $brand }}
+                        </option>
+                        @endforeach
+                    </select>
                 </div>
-                <select name="unit_of_measure" id="uomSelect" required class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
-                    <option value="">Select Unit</option>
-                    @foreach($unitsOfMeasure as $uom)
-                    <option value="{{ $uom }}" {{ old('unit_of_measure', $product->unit_of_measure) == $uom ? 'selected' : '' }}>
-                        {{ $uom }}
-                    </option>
-                    @endforeach
-                </select>
+
+                <div id="modelContainer">
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Compatible Model / Year</label>
+                    <input type="text" name="vehicle_model" id="vehicleModelInput" value="{{ old('vehicle_model', $product->vehicle_model) }}"
+                        class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
+                </div>
+
+                <div id="materialContainer">
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Material Type</label>
+                    <input type="text" name="material_type" id="materialTypeInput" value="{{ old('material_type', $product->material_type) }}"
+                        class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
+                </div>
             </div>
 
-            <div id="stockAlertContainer" style="{{ $product->is_service ? 'display:none;' : '' }}">
-                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Low Stock Alert Level</label>
-                <input type="number" name="stock_alert_level" id="stockAlertInput" value="{{ old('stock_alert_level', $product->stock_alert_level) }}" min="0"
-                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm font-mono focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
-            </div>
-        </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div id="uomContainer">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                            Unit of Measure <span class="text-rose-500">*</span>
+                        </label>
+                        <button type="button" onclick="openNewUomModal()" class="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1">
+                            <i class="fas fa-plus-circle"></i> + New Unit
+                        </button>
+                    </div>
+                    <select name="unit_of_measure" id="uomSelect" {{ $product->is_service ? '' : 'required' }} class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
+                        <option value="">Select Unit</option>
+                        @foreach($unitsOfMeasure as $uom)
+                        <option value="{{ $uom }}" {{ old('unit_of_measure', $product->unit_of_measure) == $uom ? 'selected' : '' }}>
+                            {{ $uom }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-                <label id="costPriceLabel" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ $product->is_service ? 'Estimated Labor Cost (₱)' : 'Supplier Cost (₱)' }}</label>
-                <input type="number" step="0.01" name="cost_price" value="{{ old('cost_price', $product->cost_price) }}" required
-                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-base font-bold focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
-            </div>
+                <div id="costPriceContainer">
+                    <label id="costPriceLabel" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                        Supplier Cost (₱) <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="number" step="0.01" name="cost_price" id="costPriceInput" value="{{ old('cost_price', $product->cost_price) }}" {{ $product->is_service ? '' : 'required' }} min="0"
+                        class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-base font-bold focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
+                </div>
 
-            <div>
-                <label id="unitPriceLabel" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">{{ $product->is_service ? 'Service Fee (₱)' : 'Retail Price (₱)' }}</label>
-                <input type="number" step="0.01" name="unit_price" value="{{ old('unit_price', $product->unit_price) }}" required
-                    class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono text-base font-bold focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
+                <div id="stockAlertContainer">
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">Low Stock Alert Level</label>
+                    <input type="number" name="stock_alert_level" id="stockAlertInput" value="{{ old('stock_alert_level', $product->stock_alert_level) }}" min="0"
+                        class="w-full py-3 px-4 bg-slate-50 dark:bg-dark-900 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm font-mono focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition-all">
+                </div>
             </div>
         </div>
 
@@ -170,8 +178,8 @@
         <div class="p-5 rounded-2xl bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-slate-700 space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                        <i class="fas fa-images text-cyan-500 mr-1.5"></i> Product Gallery Photos
+                    <label id="galleryHeaderLabel" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                        <i class="fas fa-images text-cyan-500 mr-1.5"></i> {{ $product->is_service ? 'Service Gallery Photos' : 'Product Gallery Photos' }}
                     </label>
                     <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                         Manage photos (Max 5 photos). Click "Remove" to remove unwanted photos with confirmation.
@@ -299,8 +307,8 @@
             <a href="{{ route('products.index') }}" class="px-5 py-2.5 rounded-xl bg-slate-200 dark:bg-dark-800 text-slate-700 dark:text-slate-300 font-semibold text-xs">
                 Cancel
             </a>
-            <button type="submit" class="px-7 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-cyan-500/20 cursor-pointer">
-                Update Product
+            <button type="submit" id="submitBtn" class="px-7 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-cyan-500/20 cursor-pointer">
+                {{ $product->is_service ? 'Update Service' : 'Update Product' }}
             </button>
         </div>
     </form>
@@ -320,25 +328,21 @@
         </div>
 
         <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-dark-900 border border-slate-200 dark:border-slate-700 flex items-center gap-4">
-            <div class="w-20 h-20 rounded-xl overflow-hidden bg-slate-200 dark:bg-dark-800 flex-shrink-0 border border-slate-300 dark:border-slate-700">
-                <img id="modalImgPreview" src="" alt="To remove" class="w-full h-full object-cover">
-            </div>
-            <div class="text-xs text-slate-600 dark:text-slate-300 space-y-1">
-                <p class="font-bold text-slate-900 dark:text-white">Remove this image from gallery?</p>
-                <p class="text-slate-500 dark:text-slate-400 leading-relaxed text-[11px]">
-                    This photo will be removed from <strong class="text-slate-700 dark:text-slate-200">{{ $product->name }}</strong> when you submit this form. You can still undo before saving.
-                </p>
+            <img id="modalImgPreview" src="" alt="Thumbnail" class="w-16 h-16 rounded-xl object-cover border border-slate-200 dark:border-slate-700">
+            <div>
+                <p class="text-xs font-semibold text-slate-700 dark:text-slate-300">Are you sure you want to remove this photo?</p>
+                <p class="text-[11px] text-slate-400 mt-0.5">You can still undo before saving changes.</p>
             </div>
         </div>
 
-        <div class="flex items-center justify-end gap-2.5 pt-2">
-            <button type="button" onclick="closeRemoveModal()" 
-                class="px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-dark-700 dark:hover:bg-dark-600 text-slate-700 dark:text-slate-200 font-bold text-xs transition-colors cursor-pointer">
-                <i class="fas fa-times mr-1"></i> Cancel / Keep Photo
+        <div class="flex items-center justify-end gap-3 pt-2">
+            <button type="button" onclick="closeRemoveModal()"
+                class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-dark-800 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-300 dark:hover:bg-dark-700 transition-colors">
+                Cancel
             </button>
-            <button type="button" id="modalConfirmBtn" 
-                class="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-lg shadow-rose-600/30 transition-all flex items-center gap-1.5 cursor-pointer">
-                <i class="fas fa-trash-alt"></i>
+            <button type="button" id="modalConfirmBtn"
+                class="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-colors shadow-lg shadow-rose-600/20 flex items-center gap-1.5">
+                <i class="fas fa-trash-can"></i>
                 <span>Yes, Remove Photo</span>
             </button>
         </div>
@@ -354,26 +358,78 @@ function toggleItemType(type) {
 
     const nameLabel = document.getElementById('itemNameLabel');
     const nameInput = document.getElementById('nameInput');
-    const costLabel = document.getElementById('costPriceLabel');
     const unitLabel = document.getElementById('unitPriceLabel');
-    const stockAlert = document.getElementById('stockAlertContainer');
+    const physicalSection = document.getElementById('physicalSpecsSection');
+    const brandSelect = document.getElementById('brandSelect');
+    const uomSelect = document.getElementById('uomSelect');
+    const costInput = document.getElementById('costPriceInput');
+    const submitBtn = document.getElementById('submitBtn');
+    const galleryHeader = document.getElementById('galleryHeaderLabel');
 
     if (isService) {
         nameLabel.innerHTML = 'Service / Labor Name <span class="text-rose-500">*</span>';
-        nameInput.placeholder = 'e.g. 5D Matting Custom Fit & Installation Service';
-        costLabel.innerHTML = 'Estimated Labor Cost (₱) <span class="text-rose-500">*</span>';
+        nameInput.placeholder = 'e.g. 5D Matting Custom Fit & Installation Service, Tinting, Ceramic Coating...';
         unitLabel.innerHTML = 'Service Fee / Charge (₱) <span class="text-rose-500">*</span>';
-        if (stockAlert) stockAlert.style.display = 'none';
-        document.getElementById('stockAlertInput').value = '0';
+        if (galleryHeader) {
+            galleryHeader.innerHTML = '<i class="fas fa-images text-cyan-500 mr-1.5"></i> Service Gallery Photos';
+        }
+        if (submitBtn) {
+            submitBtn.innerHTML = '<i class="fas fa-wrench mr-1.5"></i> Update Service';
+        }
+
+        // Hide automotive / warehouse inventory specifications
+        if (physicalSection) {
+            physicalSection.style.display = 'none';
+        }
+
+        // Remove required constraints from hidden fields
+        if (brandSelect) brandSelect.removeAttribute('required');
+        if (uomSelect) uomSelect.removeAttribute('required');
+        if (costInput) costInput.removeAttribute('required');
+
+        // Set safe fallback defaults if blank
+        if (brandSelect && !brandSelect.value) brandSelect.value = 'Universal';
+        const modelInput = document.getElementById('vehicleModelInput');
+        if (modelInput && !modelInput.value) modelInput.value = 'Universal';
+        const materialInput = document.getElementById('materialTypeInput');
+        if (materialInput && !materialInput.value) materialInput.value = 'Labor Service';
+        if (uomSelect && !uomSelect.value) uomSelect.value = 'Job';
+        if (costInput && (!costInput.value || costInput.value === '0')) costInput.value = '0';
+
+        const stockAlertInput = document.getElementById('stockAlertInput');
+        if (stockAlertInput) stockAlertInput.value = '0';
     } else {
         nameLabel.innerHTML = 'Product Name <span class="text-rose-500">*</span>';
         nameInput.placeholder = 'e.g. Toyota Fortuner 3-Row Deep Dish Matting';
-        costLabel.innerHTML = 'Supplier Cost (₱) <span class="text-rose-500">*</span>';
         unitLabel.innerHTML = 'Retail Selling Price (₱) <span class="text-rose-500">*</span>';
-        if (stockAlert) stockAlert.style.display = '';
-        document.getElementById('stockAlertInput').value = '4';
+        if (galleryHeader) {
+            galleryHeader.innerHTML = '<i class="fas fa-images text-cyan-500 mr-1.5"></i> Product Gallery Photos';
+        }
+        if (submitBtn) {
+            submitBtn.innerHTML = 'Update Product';
+        }
+
+        // Show physical specifications
+        if (physicalSection) {
+            physicalSection.style.display = '';
+        }
+
+        // Re-enable requirements
+        if (brandSelect) brandSelect.setAttribute('required', 'required');
+        if (uomSelect) uomSelect.setAttribute('required', 'required');
+        if (costInput) costInput.setAttribute('required', 'required');
+
+        const stockAlertInput = document.getElementById('stockAlertInput');
+        if (stockAlertInput && stockAlertInput.value === '0') stockAlertInput.value = '4';
     }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const isService = document.getElementById('isServiceInput').value === '1';
+    if (isService) {
+        toggleItemType('service');
+    }
+});
 
 let targetIndex = null;
 let targetPath = null;
