@@ -23,4 +23,19 @@ class Customer extends Model
     {
         return $this->hasMany(Order::class);
     }
+
+    public function payments()
+    {
+        return $this->hasMany(OrderPayment::class)->orderBy('payment_date', 'desc');
+    }
+
+    public function activeInstallmentOrders()
+    {
+        return $this->orders()->where('payment_type', 'Installment')->where('balance_due', '>', 0);
+    }
+
+    public function totalOutstandingBalance(): float
+    {
+        return (float) $this->orders()->where('balance_due', '>', 0)->sum('balance_due');
+    }
 }

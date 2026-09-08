@@ -58,15 +58,22 @@ class Product extends Model
         'images',
         'description',
         'is_active',
+        'is_service',
     ];
 
     protected $casts = [
         'cost_price' => 'decimal:2',
         'unit_price' => 'decimal:2',
         'is_active' => 'boolean',
+        'is_service' => 'boolean',
         'stock_alert_level' => 'integer',
         'images' => 'array',
     ];
+
+    public function isService(): bool
+    {
+        return (bool) $this->is_service;
+    }
 
     public function category()
     {
