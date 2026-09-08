@@ -22,12 +22,18 @@
 
     <!-- Inventory Sub-Navigation Tabs -->
     <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 overflow-x-auto">
-        <a href="{{ route('products.index') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold bg-cyan-500 text-white shadow-sm shadow-cyan-500/30 transition-all">
+        <a href="{{ route('products.index') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold {{ !request('type') ? 'bg-cyan-500 text-white shadow-sm shadow-cyan-500/30' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-dark-800' }} transition-all">
             <i class="fas fa-boxes-stacked"></i>
-            <span>All Products</span>
-            <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-white/20 text-white">
-                {{ $products->total() }}
+            <span>All Items</span>
+        </a>
+        <a href="{{ route('products.index', ['type' => 'services']) }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold {{ request('type') === 'services' ? 'bg-purple-600 text-white shadow-sm shadow-purple-600/30' : 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/40 hover:bg-purple-600 hover:text-white' }} transition-all">
+            <i class="fas fa-wrench"></i>
+            <span>Services &amp; Labor</span>
+            @if(isset($servicesCount) && $servicesCount > 0)
+            <span class="px-2 py-0.5 rounded-full text-xs font-bold {{ request('type') === 'services' ? 'bg-white text-purple-700' : 'bg-purple-200 dark:bg-purple-800 text-purple-800 dark:text-purple-200' }}">
+                {{ $servicesCount }}
             </span>
+            @endif
         </a>
         <a href="{{ route('inventory.index') }}" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-dark-800 transition-colors">
             <i class="fas fa-clipboard-check"></i>

@@ -40,7 +40,12 @@
                 <span class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mr-1 shrink-0">Category:</span>
                 <button type="button" onclick="filterCategory('all')" data-cat-btn="all"
                     class="cat-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-cyan-600 text-white shadow-sm shrink-0 transition-all">
-                    All Categories
+                    All Items
+                </button>
+                <button type="button" onclick="filterServices()" data-cat-btn="services"
+                    class="cat-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-800/60 hover:bg-purple-600 hover:text-white shrink-0 transition-all flex items-center gap-1.5">
+                    <i class="fas fa-wrench text-[10px]"></i>
+                    <span>Services &amp; Labor</span>
                 </button>
                 @foreach($categories as $cat)
                 <button type="button" onclick="filterCategory('{{ $cat->id }}')" data-cat-btn="{{ $cat->id }}"
@@ -758,6 +763,15 @@ function filterCategory(catId) {
     applyFilters();
 }
 
+function filterServices() {
+    activeCategory = 'services';
+    document.querySelectorAll('.cat-filter-btn').forEach(btn => {
+        btn.className = 'cat-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-200 dark:bg-dark-800 hover:bg-slate-300 dark:hover:bg-dark-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 shrink-0 transition-all';
+    });
+    event.currentTarget.className = 'cat-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-600 text-white shadow-sm shrink-0 transition-all flex items-center gap-1.5';
+    applyFilters();
+}
+
 document.getElementById('searchInput').addEventListener('input', applyFilters);
 
 function applyFilters() {
@@ -770,10 +784,19 @@ function applyFilters() {
         const model = item.getAttribute('data-model');
         const brand = item.getAttribute('data-brand');
         const cat = item.getAttribute('data-cat');
+        const isService = item.getAttribute('data-is-service') === '1';
 
         const matchSearch = !q || name.includes(q) || code.includes(q) || model.includes(q);
         const matchBrand = (activeBrand === 'all') || brand === activeBrand;
-        const matchCat = (activeCategory === 'all') || cat === activeCategory;
+        
+        let matchCat = false;
+        if (activeCategory === 'all') {
+            matchCat = true;
+        } else if (activeCategory === 'services') {
+            matchCat = isService;
+        } else {
+            matchCat = (cat === activeCategory);
+        }
 
         if (matchSearch && matchBrand && matchCat) {
             item.style.display = 'flex';

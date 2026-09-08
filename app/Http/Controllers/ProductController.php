@@ -35,12 +35,19 @@ class ProductController extends Controller
             $query->where('vehicle_brand', $request->vehicle_brand);
         }
 
+        if ($request->input('type') === 'services') {
+            $query->where('is_service', true);
+        } elseif ($request->input('type') === 'products') {
+            $query->where('is_service', false);
+        }
+
         // Paginate at 8 items per page so pagination controls and numbers are clearly visible and usable
         $products = $query->orderBy('id', 'desc')->paginate(8)->withQueryString();
         $categories = Category::orderBy('name')->get();
         $brands = Product::whereNotNull('vehicle_brand')->where('vehicle_brand', '!=', '')->distinct()->pluck('vehicle_brand');
+        $servicesCount = Product::where('is_service', true)->count();
 
-        return view('products.index', compact('products', 'categories', 'brands'));
+        return view('products.index', compact('products', 'categories', 'brands', 'servicesCount'));
     }
 
     public function show(Product $product)
